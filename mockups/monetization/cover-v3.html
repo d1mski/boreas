@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>St Ives · Location Report — Harbour &amp; Stone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF8;
+    --ink:#1C1C1A;
+    --ink-soft:#4A4A46;
+    --hair:#D9D9D4;
+    --hair-soft:#E6E6E1;
+    --accent:#0E5A57;
+    --accent-deep:#0A413F;
+    --backdrop:#E8E8E6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--backdrop);}
+  body{
+    font-family:'Inter',-apple-system,sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    display:flex;justify-content:center;
+    padding:24px;
+  }
+  .page{
+    position:relative;
+    width:210mm;height:297mm;
+    background:var(--paper);
+    box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 50px rgba(0,0,0,.14);
+    overflow:hidden;
+  }
+  .serif{font-family:'Fraunces',Georgia,serif;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  .cover{padding:24mm 22mm 16mm;display:flex;flex-direction:column;height:100%;}
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;}
+  .brand .mark{
+    font-family:'Fraunces',serif;font-size:24px;letter-spacing:.26em;font-weight:500;
+    color:var(--accent-deep);text-transform:uppercase;padding-right:.26em;line-height:1;
+  }
+  .brand .tagline{
+    margin-top:11px;font-size:10px;letter-spacing:.04em;color:var(--ink-soft);
+  }
+  .meta{
+    display:grid;grid-template-columns:auto auto;column-gap:14px;row-gap:6px;
+    align-content:start;text-align:right;
+  }
+  .meta dt{
+    font-size:8px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:500;text-align:right;padding-top:1px;
+  }
+  .meta dd{
+    font-size:10.5px;color:var(--ink);font-weight:500;letter-spacing:.01em;text-align:right;
+  }
+  .rule-teal{height:2px;background:var(--accent);border:0;margin-top:18px;}
+
+  /* ---------- TITLE + LOCATOR ---------- */
+  .head-grid{
+    display:grid;grid-template-columns:1fr 196px;gap:34px;align-items:center;
+    margin-top:30px;
+  }
+  .kicker{
+    font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:14px;
+  }
+  h1.title{
+    font-family:'Fraunces',serif;font-weight:400;
+    font-size:84px;line-height:.92;letter-spacing:-.04em;color:var(--ink);
+  }
+  .place{margin-top:16px;font-size:14px;letter-spacing:.02em;color:var(--ink-soft);}
+  .geo{
+    margin-top:10px;font-size:11px;letter-spacing:.03em;color:var(--ink-soft);
+  }
+
+  /* locator motif panel */
+  .locator{border:1px solid var(--hair);padding:12px 12px 9px;background:#FBFBF9;}
+  .locator svg{display:block;width:100%;height:auto;}
+  .locator .cap{
+    margin-top:8px;font-size:7.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:500;text-align:center;
+  }
+
+  /* ---------- CONTENTS ---------- */
+  .contents{margin-top:auto;padding-top:30px;}
+  .contents .c-cap{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:6px;
+  }
+  .contents .c-cap .l{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;}
+  .contents .c-cap .r{font-size:9px;letter-spacing:.04em;color:var(--ink-soft);}
+  .toc{border-top:1px solid var(--hair);}
+  .toc-row{
+    display:grid;grid-template-columns:34px 1fr auto;align-items:baseline;
+    column-gap:18px;padding:11px 2px;border-bottom:1px solid var(--hair-soft);
+  }
+  .toc-no{font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.06em;}
+  .toc-name{font-size:13px;color:var(--ink);font-weight:500;letter-spacing:.005em;}
+  .toc-read{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:14px;color:var(--accent-deep);letter-spacing:.01em;
+  }
+  .toc-read small{font-style:normal;font-size:10px;color:var(--ink-soft);font-family:'Inter';letter-spacing:.02em;}
+
+  /* ---------- SUMMARY STRIP ---------- */
+  .summary{
+    margin-top:22px;padding:14px 18px;
+    background:rgba(14,90,87,.05);border:1px solid var(--hair);
+    display:flex;align-items:baseline;gap:14px;
+  }
+  .summary .s-label{
+    font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;white-space:nowrap;flex:none;
+  }
+  .summary .s-body{font-size:11px;line-height:1.5;color:var(--ink);letter-spacing:.01em;}
+  .summary .s-body b{font-weight:600;}
+
+  /* ---------- FOOTER ---------- */
+  .cover-foot{
+    margin-top:16px;padding-top:13px;border-top:1px solid var(--hair);
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:9px;letter-spacing:.05em;color:var(--ink-soft);
+  }
+  .cover-foot .credit b{font-weight:600;color:var(--ink);}
+
+  @page{size:A4;margin:0;}
+  @media print{
+    body{background:#fff;padding:0;}
+    .page{box-shadow:none;}
+  }
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="cover">
+
+    <!-- ===== MASTHEAD ===== -->
+    <header class="masthead">
+      <div class="brand">
+        <div class="mark">Harbour &amp; Stone</div>
+        <div class="tagline">Fine Coastal Homes · Cornwall</div>
+      </div>
+      <dl class="meta num">
+        <dt>Document</dt><dd>Location Report</dd>
+        <dt>Issued</dt><dd>2026</dd>
+        <dt>Reference</dt><dd>HS-2026-0847</dd>
+        <dt>Prepared&nbsp;for</dt><dd>The prospective resident</dd>
+      </dl>
+    </header>
+    <hr class="rule-teal">
+
+    <!-- ===== TITLE + LOCATOR ===== -->
+    <div class="head-grid">
+      <div class="title-block">
+        <div class="kicker">Location Report · St Ives</div>
+        <h1 class="title">St Ives</h1>
+        <div class="place">Cornwall, England · TR26</div>
+        <div class="geo num">50.2084°N, 5.4901°W · 82 m elevation · SW-facing Atlantic coast</div>
+      </div>
+
+      <!-- Hand-built plan-style coastline locator -->
+      <figure class="locator">
+        <svg viewBox="0 0 180 150" preserveAspectRatio="xMidYMid meet" aria-label="Plan-style locator: St Ives Bay">
+          <!-- frame ticks (graticule edge) -->
+          <g stroke="var(--hair)" stroke-width="1">
+            <line x1="0" y1="0" x2="180" y2="0"/><line x1="0" y1="150" x2="180" y2="150"/>
+            <line x1="0" y1="0" x2="0" y2="150"/><line x1="180" y1="0" x2="180" y2="150"/>
+          </g>
+          <g stroke="var(--hair)" stroke-width="1">
+            <line x1="60" y1="0" x2="60" y2="5"/><line x1="120" y1="0" x2="120" y2="5"/>
+            <line x1="60" y1="145" x2="60" y2="150"/><line x1="120" y1="145" x2="120" y2="150"/>
+            <line x1="0" y1="50" x2="5" y2="50"/><line x1="0" y1="100" x2="5" y2="100"/>
+            <line x1="175" y1="50" x2="180" y2="50"/><line x1="175" y1="100" x2="180" y2="100"/>
+          </g>
+          <!-- sea contour lines (upper) -->
+          <g fill="none" stroke="var(--accent)" stroke-width="1">
+            <path d="M10,34 C56,26 100,24 134,30 C152,33 164,31 172,29" opacity=".16"/>
+            <path d="M10,46 C56,38 100,36 134,42 C152,45 164,43 172,41" opacity=".12"/>
+          </g>
+          <!-- land mass -->
+          <path d="M10,140 L10,86 C44,80 70,70 100,76 C124,81 132,98 158,96 C166,95 170,90 172,88 L172,140 Z"
+                fill="var(--accent)" fill-opacity=".07" stroke="var(--accent)" stroke-opacity=".34" stroke-width="1"/>
+          <!-- headland (The Island) -->
+          <path d="M70,70 C82,58 104,60 112,72 C106,82 80,82 70,70 Z"
+                fill="var(--accent)" fill-opacity=".14" stroke="var(--accent)" stroke-opacity=".40" stroke-width="1"/>
+          <!-- harbour pier -->
+          <line x1="112" y1="86" x2="138" y2="94" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- precise crosshair locator -->
+          <g stroke="var(--accent)" stroke-width="1">
+            <line x1="91" y1="46" x2="91" y2="92"/>
+            <line x1="68" y1="69" x2="114" y2="69"/>
+          </g>
+          <circle cx="91" cy="69" r="13" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+          <circle cx="91" cy="69" r="2.4" fill="var(--accent)"/>
+        </svg>
+        <figcaption class="cap">St Ives Bay · 50.21°N 5.49°W</figcaption>
+      </figure>
+    </div>
+
+    <!-- ===== CONTENTS ===== -->
+    <div class="contents">
+      <div class="c-cap">
+        <span class="l">Contents</span>
+        <span class="r">Seven chapters · one read each</span>
+      </div>
+      <div class="toc">
+        <div class="toc-row"><span class="toc-no">01</span><span class="toc-name">Climate</span><span class="toc-read">Mild</span></div>
+        <div class="toc-row"><span class="toc-no">02</span><span class="toc-name">Sunshine &amp; Daylight</span><span class="toc-read">Bright</span></div>
+        <div class="toc-row"><span class="toc-no">03</span><span class="toc-name">Air Quality</span><span class="toc-read">Clean&nbsp;<small class="num">AQI 30</small></span></div>
+        <div class="toc-row"><span class="toc-no">04</span><span class="toc-name">Coastal &amp; Marine</span><span class="toc-read">Swimmable</span></div>
+        <div class="toc-row"><span class="toc-no">05</span><span class="toc-name">Wind</span><span class="toc-read">Breezy</span></div>
+        <div class="toc-row"><span class="toc-no">06</span><span class="toc-name">Hazards &amp; Resilience</span><span class="toc-read">Low risk</span></div>
+        <div class="toc-row"><span class="toc-no">07</span><span class="toc-name">Local Context</span><span class="toc-read">Characterful</span></div>
+      </div>
+    </div>
+
+    <!-- ===== SUMMARY STRIP ===== -->
+    <div class="summary">
+      <span class="s-label">Summary</span>
+      <span class="s-body num">Mild oceanic climate&nbsp;·&nbsp;<b>~1,600 sun-hrs/yr</b>&nbsp;·&nbsp;PM<sub>2.5</sub> <b>4.3 µg/m³</b> (below WHO guideline)&nbsp;·&nbsp;Low hazard exposure</span>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="cover-foot">
+      <div>Harbour &amp; Stone · St Ives Location Report · <span class="num">2026</span></div>
+      <div class="credit">Location intelligence · data by <b>Settl.</b></div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

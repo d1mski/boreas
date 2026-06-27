@@ -1,0 +1,43 @@
+{
+  "_source": "Real data pulled from the same free APIs Settl. uses (Open-Meteo ERA5 archive 2014–2023 normals, live air-quality/marine/forecast). Throwaway fetch, no product code.",
+  "location": "St Ives, Cornwall, England · TR26",
+  "coords": { "lat": 50.2084, "lon": -5.4901 },
+  "elevation_m": 82,
+  "setting": "South-west-facing Atlantic coastal town",
+  "climate_normals_2014_2023": [
+    { "mo": "Jan", "mean": 7.8, "max": 9.4, "min": 6.0, "rain_mm": 108, "daylight_h": 8.6 },
+    { "mo": "Feb", "mean": 7.6, "max": 9.2, "min": 5.8, "rain_mm": 90, "daylight_h": 10.1 },
+    { "mo": "Mar", "mean": 8.1, "max": 10.0, "min": 6.1, "rain_mm": 89, "daylight_h": 11.9 },
+    { "mo": "Apr", "mean": 9.5, "max": 11.8, "min": 7.0, "rain_mm": 56, "daylight_h": 13.8 },
+    { "mo": "May", "mean": 11.8, "max": 14.1, "min": 9.5, "rain_mm": 63, "daylight_h": 15.5 },
+    { "mo": "Jun", "mean": 14.7, "max": 16.9, "min": 12.4, "rain_mm": 73, "daylight_h": 16.3 },
+    { "mo": "Jul", "mean": 16.4, "max": 18.5, "min": 14.3, "rain_mm": 67, "daylight_h": 15.9 },
+    { "mo": "Aug", "mean": 16.2, "max": 18.1, "min": 14.2, "rain_mm": 86, "daylight_h": 14.4 },
+    { "mo": "Sep", "mean": 15.2, "max": 17.2, "min": 13.2, "rain_mm": 80, "daylight_h": 12.6 },
+    { "mo": "Oct", "mean": 12.9, "max": 14.6, "min": 11.2, "rain_mm": 113, "daylight_h": 10.7 },
+    { "mo": "Nov", "mean": 10.3, "max": 11.7, "min": 8.8, "rain_mm": 124, "daylight_h": 9.0 },
+    { "mo": "Dec", "mean": 9.2, "max": 10.6, "min": 7.7, "rain_mm": 122, "daylight_h": 8.1 }
+  ],
+  "annual_rain_mm": 1071,
+  "sunshine": {
+    "api_raw_hours": 2962,
+    "note": "ERA5 sunshine_duration overestimates; do NOT use the raw figure.",
+    "display_hours": 1600,
+    "display": "~1,600 hrs/yr — among the sunniest in the UK"
+  },
+  "air_quality_live": {
+    "european_aqi": 30, "band": "Good",
+    "pm2_5": 4.3, "pm10": 12.5, "no2": 1.3, "ozone": 74,
+    "note": "PM2.5 4.3 is below the WHO 5 µg/m3 annual guideline — genuinely clean coastal air."
+  },
+  "sea_temp_monthly_C": [
+    { "mo": "Jan", "sst": 10.4 }, { "mo": "Feb", "sst": 9.7 }, { "mo": "Mar", "sst": 9.9 },
+    { "mo": "Apr", "sst": 10.8 }, { "mo": "May", "sst": 12.6 }, { "mo": "Jun", "sst": 16.5 },
+    { "mo": "Jul", "sst": 16.4 }, { "mo": "Aug", "sst": 17.0 }, { "mo": "Sep", "sst": 16.7 },
+    { "mo": "Oct", "sst": 14.6 }, { "mo": "Nov", "sst": 12.4 }, { "mo": "Dec", "sst": 10.9 }
+  ],
+  "marine": { "wave_typical_m": 1.2, "wave_p90_m": 2.1, "summer_sea_C": 17, "winter_sea_C": 10 },
+  "wind": { "dominant_deg": 205, "dominant_compass": "SSW", "winter_max_kmh": 38, "summer_max_kmh": 25 },
+  "uv_index_today": 6,
+  "hazards": { "seismic": "negligible", "wildfire": "negligible", "river_flood": "low", "coastal_tidal_flood": "watch item — harbour-front/low-lying in winter storms + spring tides", "spring_tide_range_m": 6.5 }
+}

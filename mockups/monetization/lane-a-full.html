@@ -122,6 +122,46 @@
   }
   .cover-foot .credit b{font-weight:600;color:var(--ink);}
 
+  /* ---------- PORTRAIT COVER (page 1) ---------- */
+  .masthead{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .masthead .mark{
+    font-size:24px;letter-spacing:.30em;font-weight:500;
+    color:var(--accent-deep);text-transform:uppercase;padding-right:.30em;
+  }
+  .masthead .tagline{
+    margin-top:9px;font-size:10px;letter-spacing:.05em;color:var(--ink-soft);
+  }
+  .masthead .tagline::before,.masthead .tagline::after{
+    content:"";display:inline-block;width:26px;height:1px;
+    background:var(--hair);vertical-align:middle;margin:0 12px;
+  }
+  .hero{margin-top:10mm;}
+  .hero svg{display:block;width:100%;height:auto;}
+  .title{margin-top:12mm;text-align:center;}
+  .title .kicker{
+    font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:16px;
+  }
+  .title h1{
+    font-family:'Fraunces',serif;font-weight:400;
+    font-size:92px;line-height:.92;letter-spacing:-.05em;color:var(--ink);
+  }
+  .title .sub{
+    margin-top:18px;font-size:13.5px;letter-spacing:.06em;color:var(--ink-soft);
+  }
+  .facts{
+    margin-top:auto;padding-top:18px;border-top:1px solid var(--hair);
+    text-align:center;font-size:11px;letter-spacing:.015em;
+    color:var(--ink-soft);line-height:1.7;
+  }
+  .facts .dot{color:var(--accent);margin:0 11px;font-weight:600;}
+  .facts b{color:var(--ink);font-weight:500;}
+  .foot{
+    margin-top:16px;display:flex;justify-content:space-between;align-items:baseline;
+    font-size:9px;letter-spacing:.05em;color:var(--ink-soft);
+  }
+  .foot .credit b{font-weight:600;color:var(--ink);}
+
   /* ---------- CHAPTERS ---------- */
   .chapter{padding:22mm 22mm 16mm;display:flex;flex-direction:column;height:100%;}
   .ch-head{display:flex;justify-content:space-between;align-items:baseline;}
@@ -233,43 +273,118 @@
 </head>
 <body>
 
-<!-- ============ PAGE 1 — COVER ============ -->
+<!-- ============ PAGE 1 — PORTRAIT COVER ============ -->
 <section class="page">
   <div class="cover">
 
-    <div class="wordmark">
+    <div class="masthead">
       <div class="mark serif">Harbour &amp; Stone</div>
       <div class="tagline">Fine Coastal Homes · Cornwall</div>
     </div>
 
-    <div class="hero-title">
-      <div class="kicker">Location Report</div>
-      <h1>St Ives</h1>
-      <div class="sub">Cornwall, England · Postcode district TR26 · Elevation 82 m</div>
-    </div>
+    <!-- ===== Hero: strengthened St Ives coastline as topographic contours ===== -->
+    <div class="hero" aria-hidden="true">
+      <svg viewBox="0 0 1000 580" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <!-- one hand-drawn St Ives coastline, repeated & offset to read as a topographic field -->
+          <path id="coast"
+            d="M -60 372
+               C 150 364 256 312 392 304
+               C 506 297 590 344 712 354
+               C 812 362 918 348 1060 328"/>
+        </defs>
 
-    <!-- Hero band: hand-built concentric coastline contours -->
-    <div class="hero-band" aria-hidden="true">
-      <svg viewBox="0 0 720 130" preserveAspectRatio="xMidYMid slice">
-        <defs><clipPath id="band"><rect x="0" y="0" width="720" height="130"/></clipPath></defs>
-        <g clip-path="url(#band)" fill="none" stroke="#0E5A57">
-          <g stroke-width="1">
-            <path d="M-40,118 C90,98 150,78 250,84 C360,90 410,62 520,68 C620,73 690,98 760,90" opacity=".10"/>
-            <path d="M-40,104 C100,86 168,66 262,74 C372,82 420,54 528,60 C626,66 694,88 760,80" opacity=".13"/>
-            <path d="M-40,90 C112,76 188,56 276,64 C384,73 432,46 538,54 C632,60 698,78 760,70" opacity=".16"/>
-            <path d="M-40,76 C124,66 206,48 290,57 C396,67 444,40 548,48 C638,54 702,68 760,62" opacity=".20"/>
-            <path d="M-40,62 C138,56 222,40 304,50 C408,61 456,34 558,42 C644,48 706,58 760,54" opacity=".24"/>
-            <path d="M-40,48 C152,46 238,34 318,45 C420,57 468,30 568,38 C650,44 710,50 760,48" opacity=".28"/>
-            <path d="M-40,34 C166,36 252,28 332,40 C432,53 480,26 578,34 C656,38 714,42 760,42" opacity=".32"/>
-          </g>
-          <circle cx="332" cy="60" r="3" fill="#0E5A57" stroke="none" opacity=".55"/>
+        <g fill="none" stroke="#0E5A57" stroke-linecap="round">
+          <!-- open Atlantic: bathymetry stepping seaward — faint far out, firmer toward shore -->
+          <use href="#coast" transform="translate(0,-264)" opacity=".07" stroke-width="1"/>
+          <use href="#coast" transform="translate(0,-228)" opacity=".09" stroke-width="1"/>
+          <use href="#coast" transform="translate(0,-192)" opacity=".11" stroke-width="1"/>
+          <use href="#coast" transform="translate(0,-156)" opacity=".14" stroke-width="1.1"/>
+          <use href="#coast" transform="translate(0,-120)" opacity=".18" stroke-width="1.1"/>
+          <use href="#coast" transform="translate(0,-84)"  opacity=".24" stroke-width="1.2"/>
+          <use href="#coast" transform="translate(0,-48)"  opacity=".34" stroke-width="1.3"/>
+          <use href="#coast" transform="translate(0,-24)"  opacity=".50" stroke-width="1.4"/>
+          <!-- the shoreline — the one firm engraved line -->
+          <use href="#coast" transform="translate(0,0)"    opacity=".92" stroke-width="2.2"/>
+          <!-- land — elevation contours rising inland -->
+          <use href="#coast" transform="translate(0,26)"   opacity=".55" stroke-width="1.5"/>
+          <use href="#coast" transform="translate(0,54)"   opacity=".40" stroke-width="1.3"/>
+          <use href="#coast" transform="translate(0,84)"   opacity=".30" stroke-width="1.2"/>
+          <use href="#coast" transform="translate(0,116)"  opacity=".22" stroke-width="1.1"/>
+          <use href="#coast" transform="translate(0,150)"  opacity=".16" stroke-width="1"/>
+          <use href="#coast" transform="translate(0,186)"  opacity=".11" stroke-width="1"/>
+          <use href="#coast" transform="translate(0,224)"  opacity=".08" stroke-width="1"/>
         </g>
-        <line x1="0" y1="129" x2="720" y2="129" stroke="#D9D9D4" stroke-width="1"/>
+
+        <!-- The Island: concentric summit contours over the headland -->
+        <g fill="none" stroke="#0E5A57" transform="rotate(-10 360 250)">
+          <ellipse cx="360" cy="250" rx="118" ry="56" opacity=".12" stroke-width="1.1"/>
+          <ellipse cx="360" cy="250" rx="92"  ry="44" opacity=".18" stroke-width="1.1"/>
+          <ellipse cx="360" cy="250" rx="68"  ry="32" opacity=".26" stroke-width="1.2"/>
+          <ellipse cx="360" cy="250" rx="45"  ry="21" opacity=".36" stroke-width="1.3"/>
+          <ellipse cx="360" cy="250" rx="24"  ry="11" opacity=".52" stroke-width="1.4"/>
+        </g>
+        <circle cx="360" cy="250" r="3.2" fill="#0E5A57" opacity=".7"/>
+
+        <!-- inland elevation: the town hill rising behind the harbour -->
+        <g fill="none" stroke="#0E5A57" transform="rotate(7 726 470)">
+          <ellipse cx="726" cy="470" rx="98" ry="46" opacity=".10" stroke-width="1"/>
+          <ellipse cx="726" cy="470" rx="72" ry="33" opacity=".15" stroke-width="1.1"/>
+          <ellipse cx="726" cy="470" rx="47" ry="22" opacity=".21" stroke-width="1.1"/>
+          <ellipse cx="726" cy="470" rx="24" ry="11" opacity=".28" stroke-width="1.2"/>
+        </g>
+
+        <!-- harbour location marker on the shoreline -->
+        <circle cx="600" cy="342" r="4.2" fill="none" stroke="#0E5A57" stroke-width="1.4" opacity=".7"/>
+        <circle cx="600" cy="342" r="1.7" fill="#0E5A57" opacity=".9"/>
+
+        <!-- quiet cartographic labels -->
+        <text x="828" y="150" font-family="Fraunces, serif" font-style="italic"
+              font-size="20" fill="#0E5A57" opacity=".75" text-anchor="middle">The Atlantic</text>
+        <text x="360" y="180" font-family="Fraunces, serif" font-style="italic"
+              font-size="16" fill="#0E5A57" opacity=".8" text-anchor="middle">The Island</text>
       </svg>
     </div>
 
-    <!-- ===== Liveability Index (graft 1) ===== -->
-    <div class="liv">
+    <!-- ===== Title ===== -->
+    <div class="title">
+      <div class="kicker">Location Report</div>
+      <h1 class="serif">St Ives</h1>
+      <div class="sub">Cornwall, England · TR26</div>
+    </div>
+
+    <!-- ===== One quiet headline-facts line ===== -->
+    <div class="facts">
+      Among the <b>sunniest in the UK</b>
+      <span class="dot">·</span>
+      Clean Atlantic air <b>(AQI 30)</b>
+      <span class="dot">·</span>
+      Swimmable summer seas, <b>~17&deg;C</b>
+      <span class="dot">·</span>
+      Mild all year, <b>8&ndash;16&deg;C</b>
+    </div>
+
+    <div class="foot">
+      <div class="credit">Location intelligence · data by <b>Settl.</b></div>
+      <div>St Ives · TR26 &nbsp;—&nbsp; June 2026</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ PAGE 2 — OVERVIEW / AT A GLANCE ============ -->
+<section class="page">
+  <div class="chapter">
+
+    <div class="ch-head">
+      <span class="ch-no">Overview</span>
+      <span class="ch-loc">St Ives · TR26</span>
+    </div>
+    <h2 class="serif">At a Glance</h2>
+    <p class="ch-summary serif">An overview of St Ives — the headline read before the detail.</p>
+
+    <!-- ===== Liveability Index (the hero of this page) ===== -->
+    <div class="liv" style="margin-top:44px;">
       <div class="liv-cap">
         <span class="t">Liveability index</span>
         <span class="s">Favourability for living &nbsp;·&nbsp; fuller is better</span>
@@ -281,13 +396,13 @@
       </div>
       <div class="liv-row">
         <span class="liv-label">Air quality</span>
-        <span class="liv-track"><span class="liv-fill" style="width:90%"></span></span>
-        <span class="liv-val">Good</span>
+        <span class="liv-track"><span class="liv-fill" style="width:95%"></span></span>
+        <span class="liv-val">AQI 30 · Good</span>
       </div>
       <div class="liv-row">
         <span class="liv-label">Climate</span>
         <span class="liv-track"><span class="liv-fill" style="width:80%"></span></span>
-        <span class="liv-val">Temperate</span>
+        <span class="liv-val">Mild · 8&ndash;16&deg;C</span>
       </div>
       <div class="liv-row">
         <span class="liv-label">Coastal exposure</span>
@@ -301,36 +416,14 @@
       </div>
     </div>
 
-    <div class="stats">
-      <div class="stat">
-        <div class="s-label">Sunshine</div>
-        <div class="s-value serif">Among the sunniest<br>in Britain</div>
-        <div class="s-note">≈ 1,650 hrs / year</div>
-      </div>
-      <div class="stat">
-        <div class="s-label">Air quality</div>
-        <div class="s-value serif">Clean coastal air</div>
-        <div class="s-note">European AQI 39 · Good</div>
-      </div>
-      <div class="stat">
-        <div class="s-label">Temperature</div>
-        <div class="s-value serif">Mild year-round</div>
-        <div class="s-note">8–17 °C monthly mean</div>
-      </div>
-      <div class="stat">
-        <div class="s-label">Sea</div>
-        <div class="s-value serif">Swimmable summers</div>
-        <div class="s-note">~17 °C late summer</div>
-      </div>
-    </div>
-
-    <div class="contents">
+    <!-- ===== Contents (opening-spread convention) ===== -->
+    <div class="contents" style="margin-top:52px;">
       Inside&nbsp;&nbsp;—&nbsp;&nbsp;<b>01</b>&nbsp;Climate&nbsp;·&nbsp;<b>02</b>&nbsp;Sunshine &amp; Daylight&nbsp;·&nbsp;<b>03</b>&nbsp;Air Quality&nbsp;·&nbsp;<b>04</b>&nbsp;Coastal &amp; Marine&nbsp;·&nbsp;<b>05</b>&nbsp;Wind&nbsp;·&nbsp;<b>06</b>&nbsp;Hazards &amp; Resilience&nbsp;·&nbsp;<b>07</b>&nbsp;Local Context
     </div>
 
-    <div class="cover-foot">
-      <div>Prepared for the prospective resident · 2026</div>
+    <div class="chapter-foot">
       <div class="credit">Location intelligence · data by <b>Settl.</b></div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 02</div>
     </div>
 
   </div>
@@ -457,7 +550,7 @@
 
     <div class="chapter-foot">
       <div class="credit">Location intelligence · data by <b>Settl.</b></div>
-      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 02</div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 03</div>
     </div>
 
   </div>
@@ -569,7 +662,7 @@
 
     <div class="chapter-foot">
       <div class="credit">Location intelligence · data by <b>Settl.</b></div>
-      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 03</div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 04</div>
     </div>
 
   </div>
@@ -653,7 +746,7 @@
 
     <div class="chapter-foot">
       <div class="credit">Location intelligence · data by <b>Settl.</b></div>
-      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 04</div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 05</div>
     </div>
 
   </div>
@@ -733,7 +826,7 @@
 
     <div class="chapter-foot">
       <div class="credit">Location intelligence · data by <b>Settl.</b></div>
-      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 05</div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 06</div>
     </div>
 
   </div>
@@ -842,7 +935,7 @@
 
     <div class="chapter-foot">
       <div class="credit">Location intelligence · data by <b>Settl.</b></div>
-      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 06</div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 07</div>
     </div>
 
   </div>
@@ -907,7 +1000,7 @@
 
     <div class="chapter-foot">
       <div class="credit">Location intelligence · data by <b>Settl.</b></div>
-      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 07</div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 08</div>
     </div>
 
   </div>
@@ -993,7 +1086,7 @@
 
     <div class="chapter-foot">
       <div class="credit">Location intelligence · data by <b>Settl.</b></div>
-      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 08</div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 09</div>
     </div>
 
   </div>
