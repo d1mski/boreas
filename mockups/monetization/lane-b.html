@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harbour &amp; Stone · St Ives Location Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#0E5A57;
+    --teal-deep:#0A4644;
+    --teal-soft:#E4F0EE;
+    --teal-mist:#F1F7F5;
+    --paper:#FBFAF8;
+    --backdrop:#ECEAE6;
+    --ink:#23302E;        /* body text — passes AA on paper */
+    --ink-soft:#4A5653;   /* secondary, still ≥4.5:1 on paper */
+    --line:#E7E3DC;
+    --green:#1F7A4D;      /* good — dark enough for AA */
+    --green-soft:#E3F2E8;
+    --amber:#8A5A12;      /* note — dark enough for AA */
+    --amber-soft:#F6ECD9;
+    --shadow:0 1px 2px rgba(30,40,38,.04), 0 10px 30px rgba(30,40,38,.07);
+    --shadow-sm:0 1px 2px rgba(30,40,38,.05), 0 4px 14px rgba(30,40,38,.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--backdrop);
+    font-family:"Plus Jakarta Sans",system-ui,sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    display:flex;flex-direction:column;align-items:center;
+    gap:24px;padding:40px 0;
+  }
+
+  .page{
+    position:relative;
+    width:210mm;height:297mm;
+    background:var(--paper);
+    border-radius:14px;
+    box-shadow:0 4px 14px rgba(30,40,38,.10), 0 24px 60px rgba(30,40,38,.13);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+
+  /* ---------- shared atoms ---------- */
+  .pad{padding:18mm 16mm;}
+  .brandrow{display:flex;align-items:center;justify-content:space-between;}
+  .lockup{display:flex;align-items:center;gap:11px;}
+  .crest{
+    width:42px;height:42px;border-radius:11px;
+    background:var(--teal);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 12px rgba(14,90,87,.30);
+    flex:none;
+  }
+  .lockup .name{font-weight:800;letter-spacing:-0.02em;font-size:16px;line-height:1.05;color:var(--ink);}
+  .lockup .sub{font-size:10.5px;color:var(--ink-soft);font-weight:500;letter-spacing:.01em;margin-top:2px;}
+  .pill{
+    font-size:10.5px;font-weight:600;color:var(--teal);
+    background:var(--teal-soft);
+    padding:7px 13px;border-radius:999px;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .pill svg{display:block;}
+
+  h1.display{
+    font-weight:800;letter-spacing:-0.045em;line-height:0.94;
+    font-size:78px;margin:0;color:var(--ink);
+  }
+  .welcome{
+    font-size:14px;font-weight:600;color:var(--teal);
+    margin:0 0 14px;letter-spacing:-0.01em;
+  }
+  .placeline{
+    font-size:14px;color:var(--ink-soft);font-weight:600;margin:14px 0 0;
+    display:flex;align-items:center;gap:8px;
+  }
+
+  /* ---------- hero svg ---------- */
+  .hero{
+    margin-top:20px;border-radius:16px;overflow:hidden;
+    box-shadow:var(--shadow);
+    position:relative;line-height:0;
+  }
+  .hero svg{width:100%;height:auto;display:block;}
+  .hero .tag{
+    position:absolute;left:16px;bottom:14px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:saturate(1.1);
+    color:var(--ink);font-size:11px;font-weight:600;
+    padding:7px 12px;border-radius:999px;
+    display:flex;align-items:center;gap:7px;
+    box-shadow:0 2px 8px rgba(30,40,38,.12);
+  }
+
+  /* ---------- comfort badges ---------- */
+  .badges{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:14px;margin-top:22px;}
+  .badge{
+    background:#fff;border:1px solid var(--line);
+    border-radius:14px;padding:16px 16px 15px;
+    box-shadow:var(--shadow-sm);
+    display:flex;flex-direction:column;gap:9px;
+  }
+  .badge.feature{
+    grid-row:span 2;
+    background:linear-gradient(180deg,#fff, var(--teal-mist));
+    justify-content:space-between;
+  }
+  .badge .ico{
+    width:34px;height:34px;border-radius:10px;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--teal-soft);
+  }
+  .badge.feature .ico{width:40px;height:40px;border-radius:12px;}
+  .badge .lab{font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.01em;}
+  .badge .val{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-0.03em;line-height:1.05;}
+  .badge.feature .val{font-size:30px;}
+  .badge .note{font-size:11px;color:var(--ink-soft);line-height:1.45;font-weight:500;}
+  .good{
+    display:inline-flex;align-items:center;gap:5px;align-self:flex-start;
+    font-size:10.5px;font-weight:700;color:var(--green);
+    background:var(--green-soft);padding:4px 9px;border-radius:999px;
+  }
+  .softnote{
+    display:inline-flex;align-items:center;gap:5px;align-self:flex-start;
+    font-size:10.5px;font-weight:700;color:var(--amber);
+    background:var(--amber-soft);padding:4px 9px;border-radius:999px;
+  }
+
+  /* ---------- footer ---------- */
+  .foot{
+    margin-top:auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:13px 16mm;border-top:1px solid var(--line);
+    font-size:10px;color:var(--ink-soft);font-weight:500;
+  }
+  .foot .settl{display:flex;align-items:center;gap:6px;}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--teal);display:inline-block;}
+
+  /* ---------- page 2 ---------- */
+  .chapter{display:flex;align-items:baseline;gap:14px;}
+  .chapter .num{
+    font-size:13px;font-weight:800;color:var(--teal);
+    background:var(--teal-soft);padding:5px 11px;border-radius:8px;
+  }
+  h2{font-size:40px;font-weight:800;letter-spacing:-0.04em;margin:0;color:var(--ink);}
+  .lede{
+    font-size:14.5px;line-height:1.55;color:var(--ink-soft);font-weight:500;
+    max-width:62ch;margin:14px 0 0;
+  }
+
+  .chartcard{
+    background:#fff;border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow-sm);padding:20px 22px 16px;margin-top:22px;
+  }
+  .chartcard .ch-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .chartcard .ch-title{font-size:14px;font-weight:700;letter-spacing:-0.01em;}
+  .legend{display:flex;gap:14px;font-size:10.5px;color:var(--ink-soft);font-weight:600;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .swatch{width:11px;height:11px;border-radius:3px;display:inline-block;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+  .minicard{
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow-sm);padding:15px 16px;
+    display:flex;gap:12px;align-items:flex-start;
+  }
+  .minicard .ico{
+    width:32px;height:32px;border-radius:9px;flex:none;
+    display:flex;align-items:center;justify-content:center;background:var(--teal-soft);
+  }
+  .minicard .mt{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:-0.01em;}
+  .minicard .mc{font-size:11px;color:var(--ink-soft);font-weight:500;line-height:1.4;margin-top:3px;}
+
+  .meaning{
+    margin-top:20px;background:var(--teal-mist);
+    border:1px solid var(--teal-soft);border-radius:16px;padding:20px 22px;
+  }
+  .meaning h3{
+    margin:0 0 8px;font-size:14px;font-weight:800;color:var(--teal-deep);
+    letter-spacing:-0.01em;display:flex;align-items:center;gap:8px;
+  }
+  .meaning p{margin:0;font-size:13px;line-height:1.62;color:var(--ink);max-width:70ch;font-weight:500;}
+
+  @page{size:A4;margin:0;}
+  @media print{
+    body{background:#fff;padding:0;gap:0;}
+    .page{box-shadow:none;border-radius:0;page-break-after:always;width:210mm;height:297mm;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== PAGE 1 — COVER ============== -->
+<section class="page">
+  <div class="pad" style="padding-bottom:0;">
+    <div class="brandrow">
+      <div class="lockup">
+        <div class="crest">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/>
+          </svg>
+        </div>
+        <div>
+          <div class="name">HARBOUR &amp; STONE</div>
+          <div class="sub">Fine Coastal Homes · Cornwall</div>
+        </div>
+      </div>
+      <div class="pill">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>
+        Location Report
+      </div>
+    </div>
+
+    <div style="margin-top:34px;">
+      <p class="welcome">Welcome home — here's what life feels like in</p>
+      <h1 class="display">St Ives</h1>
+      <p class="placeline">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.2"/></svg>
+        Cornwall, England · TR26 &nbsp;·&nbsp; 82 m elevation · SW Atlantic coast
+      </p>
+    </div>
+
+    <!-- hand-built coastal hero -->
+    <div class="hero">
+      <svg viewBox="0 0 720 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated coastal harbour scene of St Ives">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#DCEFF1"/><stop offset="1" stop-color="#F3F8F4"/>
+          </linearGradient>
+          <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#7FC3BD"/><stop offset="1" stop-color="#3E938D"/>
+          </linearGradient>
+          <linearGradient id="hillBack" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#BFE0CC"/><stop offset="1" stop-color="#A6D2B7"/>
+          </linearGradient>
+          <linearGradient id="hillFront" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#8FC6A4"/><stop offset="1" stop-color="#6FB389"/>
+          </linearGradient>
+          <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#FFE9A8"/><stop offset="1" stop-color="#FFD66B"/>
+          </radialGradient>
+        </defs>
+
+        <rect width="720" height="300" fill="url(#sky)"/>
+        <!-- sun -->
+        <circle cx="582" cy="78" r="34" fill="url(#sun)"/>
+        <circle cx="582" cy="78" r="46" fill="#FFE9A8" opacity="0.28"/>
+        <!-- back hills -->
+        <path d="M0 150 Q120 96 250 132 T520 120 T720 138 V300 H0 Z" fill="url(#hillBack)"/>
+        <!-- sea -->
+        <path d="M0 168 H720 V236 H0 Z" fill="url(#sea)"/>
+        <!-- gentle wave lines -->
+        <path d="M40 196 q24 -8 48 0 t48 0 t48 0 t48 0" fill="none" stroke="#fff" stroke-width="2" opacity="0.45" stroke-linecap="round"/>
+        <path d="M360 214 q24 -8 48 0 t48 0 t48 0 t48 0 t48 0" fill="none" stroke="#fff" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
+        <!-- front headland -->
+        <path d="M0 196 Q90 150 210 176 Q300 196 360 184 L360 300 H0 Z" fill="url(#hillFront)"/>
+        <!-- harbour quay -->
+        <path d="M360 236 H720 V300 H360 Z" fill="#EAD9BE"/>
+        <path d="M360 236 H720" stroke="#D8C29E" stroke-width="2"/>
+        <!-- little harbour houses -->
+        <g>
+          <rect x="402" y="196" width="34" height="40" rx="3" fill="#FBFBF7"/>
+          <path d="M400 196 L419 180 L438 196 Z" fill="#C9603F"/>
+          <rect x="411" y="210" width="7" height="9" rx="1.5" fill="#9CC7C2"/>
+          <rect x="421" y="210" width="7" height="9" rx="1.5" fill="#9CC7C2"/>
+
+          <rect x="446" y="186" width="40" height="50" rx="3" fill="#F4ECDD"/>
+          <path d="M444 186 L466 168 L488 186 Z" fill="#2F726D"/>
+          <rect x="455" y="200" width="8" height="11" rx="1.5" fill="#9CC7C2"/>
+          <rect x="469" y="200" width="8" height="11" rx="1.5" fill="#9CC7C2"/>
+          <rect x="461" y="218" width="10" height="18" rx="1.5" fill="#C9603F"/>
+
+          <rect x="496" y="200" width="32" height="36" rx="3" fill="#FBFBF7"/>
+          <path d="M494 200 L512 186 L530 200 Z" fill="#3E938D"/>
+          <rect x="504" y="212" width="7" height="9" rx="1.5" fill="#9CC7C2"/>
+        </g>
+        <!-- lighthouse on the point -->
+        <g>
+          <rect x="650" y="190" width="14" height="46" rx="3" fill="#FBFBF7"/>
+          <rect x="650" y="206" width="14" height="8" fill="#C9603F"/>
+          <path d="M648 190 L657 180 L666 190 Z" fill="#2F726D"/>
+          <circle cx="657" cy="186" r="2.4" fill="#FFD66B"/>
+        </g>
+        <!-- sailboats -->
+        <g>
+          <path d="M150 220 l16 0 -3 9 -10 0 z" fill="#FBFBF7"/>
+          <path d="M158 200 l0 19 9 0 z" fill="#fff"/>
+          <line x1="158" y1="200" x2="158" y2="220" stroke="#3E938D" stroke-width="1.5"/>
+          <path d="M250 226 l13 0 -2 7 -9 0 z" fill="#F4ECDD"/>
+          <path d="M256 210 l0 15 7 0 z" fill="#fff"/>
+          <line x1="256" y1="210" x2="256" y2="226" stroke="#C9603F" stroke-width="1.4"/>
+        </g>
+        <!-- seabirds -->
+        <g stroke="#5C6B68" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.7">
+          <path d="M120 70 q7 -7 14 0"/><path d="M134 70 q7 -7 14 0"/>
+          <path d="M180 92 q5 -5 10 0"/><path d="M190 92 q5 -5 10 0"/>
+        </g>
+      </svg>
+      <div class="tag">
+        <span class="dot"></span> The map is the hero — your coastline, at a glance
+      </div>
+    </div>
+
+    <!-- comfort badges -->
+    <div class="badges">
+      <div class="badge feature">
+        <div>
+          <div class="ico">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+          </div>
+          <div style="margin-top:14px;" class="lab">Sunshine</div>
+          <div class="val">Exceptionally sunny</div>
+          <div class="note" style="margin-top:8px;">≈ 1,650 hours a year, among the brightest spots in Britain. Long, light evenings from late spring through summer.</div>
+        </div>
+        <div class="good">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Sunny ✓
+        </div>
+      </div>
+
+      <div class="badge">
+        <div class="ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h9a3 3 0 1 0-3-3"/><path d="M3 17h13a3 3 0 1 1-3 3"/></svg>
+        </div>
+        <div class="lab">Air quality</div>
+        <div class="val">AQI 39 · Good</div>
+        <div class="good">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Clean air ✓
+        </div>
+      </div>
+
+      <div class="badge">
+        <div class="ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5a4 4 0 1 0 4 0V5a2 2 0 1 0-4 0Z"/><path d="M10 9h4"/></svg>
+        </div>
+        <div class="lab">Year-round feel</div>
+        <div class="val">Mild · 8–17°C</div>
+        <div class="good">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Gentle ✓
+        </div>
+      </div>
+
+      <div class="badge" style="grid-column:span 2;flex-direction:row;align-items:center;gap:14px;">
+        <div class="ico" style="width:38px;height:38px;border-radius:11px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.2 2.9 8.1 7 9 4.1-.9 7-4.8 7-9V6Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div class="lab">Natural hazard exposure</div>
+          <div class="val" style="font-size:16px;">Low overall risk</div>
+          <div class="note" style="margin-top:4px;">Earthquake &amp; wildfire negligible · flood risk low, with occasional coastal storm-watch.</div>
+        </div>
+        <div class="softnote" style="align-self:center;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          Storm-watch
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Prepared by Harbour &amp; Stone · Fine Coastal Homes · harbourandstone.co.uk</span>
+    <span class="settl"><span class="dot"></span> Location intelligence · data by <strong style="color:var(--teal);font-weight:700;">Settl.</strong></span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 2 — CLIMATE ============== -->
+<section class="page">
+  <div class="pad" style="padding-bottom:0;">
+    <div class="brandrow" style="margin-bottom:26px;">
+      <div class="lockup">
+        <div class="crest" style="width:34px;height:34px;border-radius:9px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg>
+        </div>
+        <div class="name" style="font-size:13px;">HARBOUR &amp; STONE</div>
+      </div>
+      <div class="pill">St Ives · TR26</div>
+    </div>
+
+    <div class="chapter">
+      <span class="num">02</span>
+      <h2>Climate</h2>
+    </div>
+    <p class="lede">Mild and oceanic: comfortable nearly all year, with some of Britain's best sunshine. Winters stay gentle, summers stay fresh, and frost is a rare visitor on this stretch of the Atlantic coast.</p>
+
+    <!-- temperature chart -->
+    <div class="chartcard">
+      <div class="ch-head">
+        <div class="ch-title">Monthly temperature · °C</div>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--teal);"></span> Average</span>
+          <span><span class="swatch" style="background:#BBD8D4;"></span> Daily range (min–max)</span>
+        </div>
+      </div>
+      <!--
+        x: 12 months across 60..700  → step 58.18
+        y scale: 0°C at y=178, 22°C at y=24  (≈7px per °C)
+        max[10,10,11,13,16,18,20,20,18,15,12,10] min[6,5,6,7,9,12,14,14,13,11,8,7] mean[8,8,9,10,12,15,17,17,16,14,11,9]
+      -->
+      <svg viewBox="0 0 720 210" width="100%" role="img" aria-label="Monthly average temperature line with daily min–max band">
+        <defs>
+          <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#CFE6E2"/><stop offset="1" stop-color="#E8F2F0"/>
+          </linearGradient>
+          <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0E5A57" stop-opacity="0.16"/><stop offset="1" stop-color="#0E5A57" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <!-- gridlines + y labels (0,5,10,15,20) -->
+        <g font-family="Plus Jakarta Sans" font-size="9" fill="#8A938F" font-weight="600">
+          <line x1="60" y1="178" x2="700" y2="178" stroke="#EEEAE3" stroke-width="1"/><text x="40" y="181">0°</text>
+          <line x1="60" y1="143" x2="700" y2="143" stroke="#EEEAE3" stroke-width="1"/><text x="40" y="146">5°</text>
+          <line x1="60" y1="108" x2="700" y2="108" stroke="#EEEAE3" stroke-width="1"/><text x="36" y="111">10°</text>
+          <line x1="60" y1="73"  x2="700" y2="73"  stroke="#EEEAE3" stroke-width="1"/><text x="36" y="76">15°</text>
+          <line x1="60" y1="38"  x2="700" y2="38"  stroke="#EEEAE3" stroke-width="1"/><text x="36" y="41">20°</text>
+        </g>
+
+        <!-- min–max band: max across the top, min back along the bottom -->
+        <path d="M60,108 121,108 179,101 238,87 296,66 354,52 412,38 470,38 528,52 587,73 645,94 700,108
+                 700,136 645,122 587,108 528,80 470,80 412,80 354,94 296,115 238,129 179,136 121,143 60,136 Z"
+              fill="url(#band)" opacity="0.85"/>
+
+        <!-- mean area fill -->
+        <path d="M60,122 121,122 179,115 238,108 296,94 354,73 412,59 470,59 528,66 587,80 645,101 700,115 700,178 60,178 Z"
+              fill="url(#lineFill)"/>
+        <!-- mean line (rounded) -->
+        <polyline points="60,122 121,122 179,115 238,108 296,94 354,73 412,59 470,59 528,66 587,80 645,101 700,115"
+              fill="none" stroke="var(--teal)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- mean dots -->
+        <g fill="#fff" stroke="var(--teal)" stroke-width="2.4">
+          <circle cx="60" cy="122" r="3.4"/><circle cx="121" cy="122" r="3.4"/><circle cx="179" cy="115" r="3.4"/>
+          <circle cx="238" cy="108" r="3.4"/><circle cx="296" cy="94" r="3.4"/><circle cx="354" cy="73" r="3.4"/>
+          <circle cx="412" cy="59" r="3.4"/><circle cx="470" cy="59" r="3.4"/><circle cx="528" cy="66" r="3.4"/>
+          <circle cx="587" cy="80" r="3.4"/><circle cx="645" cy="101" r="3.4"/><circle cx="700" cy="115" r="3.4"/>
+        </g>
+        <!-- month labels -->
+        <g font-family="Plus Jakarta Sans" font-size="9.5" fill="#5C6663" font-weight="600" text-anchor="middle">
+          <text x="60" y="200">J</text><text x="121" y="200">F</text><text x="179" y="200">M</text>
+          <text x="238" y="200">A</text><text x="296" y="200">M</text><text x="354" y="200">J</text>
+          <text x="412" y="200">J</text><text x="470" y="200">A</text><text x="528" y="200">S</text>
+          <text x="587" y="200">O</text><text x="645" y="200">N</text><text x="700" y="200">D</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- rainfall mini-chart -->
+    <div class="chartcard" style="margin-top:14px;padding-bottom:14px;">
+      <div class="ch-head">
+        <div class="ch-title">Monthly rainfall · mm</div>
+        <div class="legend"><span style="color:var(--ink-soft);">Annual ≈ 1,010 mm · driest May–Aug</span></div>
+      </div>
+      <!-- 12 rounded bars, max value 120 → height up to 96px; baseline y=120 -->
+      <svg viewBox="0 0 720 140" width="100%" role="img" aria-label="Monthly rainfall in millimetres, twelve bars">
+        <g font-family="Plus Jakarta Sans" font-size="9" fill="#8A938F" font-weight="600">
+          <line x1="44" y1="120" x2="712" y2="120" stroke="#EEEAE3"/>
+        </g>
+        <!-- bars: values 110,85,75,65,60,55,60,70,80,110,120,120 -->
+        <g fill="#5FA9A2">
+          <!-- x positions centered: step 56, width 30 -->
+          <rect x="49"  y="32"  width="30" height="88" rx="7" fill="#3E938D"/>
+          <rect x="105" y="52"  width="30" height="68" rx="7"/>
+          <rect x="161" y="60"  width="30" height="60" rx="7"/>
+          <rect x="217" y="68"  width="30" height="52" rx="7" fill="#86C3BC"/>
+          <rect x="273" y="72"  width="30" height="48" rx="7" fill="#86C3BC"/>
+          <rect x="329" y="76"  width="30" height="44" rx="7" fill="#86C3BC"/>
+          <rect x="385" y="72"  width="30" height="48" rx="7" fill="#86C3BC"/>
+          <rect x="441" y="64"  width="30" height="56" rx="7"/>
+          <rect x="497" y="56"  width="30" height="64" rx="7"/>
+          <rect x="553" y="32"  width="30" height="88" rx="7" fill="#3E938D"/>
+          <rect x="609" y="24"  width="30" height="96" rx="7" fill="#2F726D"/>
+          <rect x="665" y="24"  width="30" height="96" rx="7" fill="#2F726D"/>
+        </g>
+        <g font-family="Plus Jakarta Sans" font-size="9.5" fill="#5C6663" font-weight="600" text-anchor="middle">
+          <text x="64" y="135">J</text><text x="120" y="135">F</text><text x="176" y="135">M</text>
+          <text x="232" y="135">A</text><text x="288" y="135">M</text><text x="344" y="135">J</text>
+          <text x="400" y="135">J</text><text x="456" y="135">A</text><text x="512" y="135">S</text>
+          <text x="568" y="135">O</text><text x="624" y="135">N</text><text x="680" y="135">D</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- comfort mini-cards -->
+    <div class="grid2">
+      <div class="minicard">
+        <div class="ico">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19"/></svg>
+        </div>
+        <div><div class="mt">Frost? Rare.</div><div class="mc">Coastal air keeps winter lows around 5–6°C, so hard frosts are unusual.</div></div>
+      </div>
+      <div class="minicard">
+        <div class="ico">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+        </div>
+        <div><div class="mt">Best months: May–Sep</div><div class="mc">Warmest, driest and sunniest stretch, peak time for the coast path and beaches.</div></div>
+      </div>
+      <div class="minicard">
+        <div class="ico">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20c-3 0-5-2-5-5 0-2.5 2-4.5 4.3-4.5C7 7 9.5 5 12.5 5 16 5 18.5 7.4 18.8 10.6 21 11 22 12.6 22 14.5c0 3-2.5 5.5-5.5 5.5Z"/></svg>
+        </div>
+        <div><div class="mt">Garden-friendly</div><div class="mc">Mild winters let tender, sub-tropical planting thrive; palms and agapanthus do well here.</div></div>
+      </div>
+      <div class="minicard">
+        <div class="ico">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 3 2"/><path d="M3 19c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 3 2"/><path d="M14 7a3 3 0 1 0-6 0"/></svg>
+        </div>
+        <div><div class="mt">Fresh sea breeze</div><div class="mc">Prevailing SW wind keeps air clean; summer waves a gentle ~0.8 m, sea ~17°C by late summer.</div></div>
+      </div>
+    </div>
+
+    <!-- what this means -->
+    <div class="meaning">
+      <h3>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--teal-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2Z"/></svg>
+        What this means for day-to-day life
+      </h3>
+      <p>You can expect comfortable layers rather than extremes: heating bills stay modest through gentle winters, and summers stay pleasant without the heat that tires inland towns. Wetter, breezier spells arrive in late autumn (good waterproofs earn their keep from October to December), but long bright evenings and a frost-free garden are the trade you get for living beside the Atlantic. For most families, it simply means more time spent outdoors, comfortably, across more of the year.</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Harbour &amp; Stone · St Ives Location Report · Page 2 of 2</span>
+    <span class="settl"><span class="dot"></span> Location intelligence · data by <strong style="color:var(--teal);font-weight:700;">Settl.</strong></span>
+  </div>
+</section>
+
+</body>
+</html>
