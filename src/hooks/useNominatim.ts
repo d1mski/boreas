@@ -4,7 +4,8 @@ import { cacheGet, cacheSet, TTL } from '../utils/persistentCache';
 
 const MIN_INTERVAL_MS = 1100;
 const BASE = 'https://nominatim.openstreetmap.org';
-const CONTACT = 'settl-dev';
+const CONTACT = (import.meta.env.VITE_NOMINATIM_CONTACT as string | undefined) ?? '';
+const CONTACT_PARAM = CONTACT ? `&email=${encodeURIComponent(CONTACT)}` : '';
 
 let lastRequestAt = 0;
 const pending: Array<() => void> = [];
@@ -199,7 +200,7 @@ export async function reverseGeocode(
   return throttled(async () => {
     const url =
       `${BASE}/reverse?lat=${coords.lat}&lon=${coords.lon}` +
-      `&format=json&zoom=18&addressdetails=1&email=${CONTACT}`;
+      `&format=json&zoom=18&addressdetails=1${CONTACT_PARAM}`;
     const res = await fetch(url, {
       signal,
       headers: { Accept: 'application/json' },
@@ -223,7 +224,7 @@ export async function forwardGeocode(
   return throttled(async () => {
     const url =
       `${BASE}/search?q=${encodeURIComponent(query)}` +
-      `&format=json&limit=6&addressdetails=1&email=${CONTACT}`;
+      `&format=json&limit=6&addressdetails=1${CONTACT_PARAM}`;
     const res = await fetch(url, {
       signal,
       headers: { Accept: 'application/json' },
