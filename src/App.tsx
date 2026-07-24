@@ -14,19 +14,23 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { useUrlState } from './hooks/useUrlState';
 import { useReverseGeocode } from './hooks/useNominatim';
 import { useMarine } from './hooks/useMarine';
+import { useMediaQuery } from './hooks/useMediaQuery';
 
 export default function App() {
   const { state, update } = useUrlState();
   const { result: geocodedA, loading: resolvingA } = useReverseGeocode(state.coordsA);
   const { result: geocodedB, loading: resolvingB } = useReverseGeocode(state.coordsB);
   const [viewMode, setViewMode] = useState<'overview' | 'advanced'>('overview');
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const compareMode = state.coordsB !== null;
 
   const marineState = useMarine(state.coordsA);
+  const marineErrored = marineState.status === 'error';
   const isCoastal = marineState.data?.isCoastal ?? false;
-  const marineResolved = marineState.status === 'success' || marineState.status === 'error';
-  const visibleTabs = isCoastal ? TAB_ORDER : TAB_ORDER.filter(id => id !== 'marine');
+  // Error can't tell us "inland" — keep the tab and let MarineModule show its
+  // error state instead of silently deciding the location isn't coastal.
+  const visibleTabs = isCoastal || marineErrored ? TAB_ORDER : TAB_ORDER.filter(id => id !== 'marine');
 
   const [climateYears, setClimateYears] = useState<1 | 5 | 10>(1);
 
@@ -82,12 +86,13 @@ export default function App() {
     return () => window.removeEventListener('settl-webcam-select', handler);
   }, [handleDrillDown]);
 
-  // C-02: marine tab vanishes when an active-marine pin becomes inland — revert to climate
+  // C-02: marine tab vanishes when an active-marine pin becomes inland — revert to climate.
+  // Only fires on a confirmed-inland SUCCESS; an API error must not be read as "inland".
   useEffect(() => {
-    if (state.tab === 'marine' && !isCoastal && marineResolved) {
+    if (state.tab === 'marine' && !isCoastal && marineState.status === 'success') {
       update({ tab: 'climate' });
     }
-  }, [isCoastal, marineResolved, state.tab, update]);
+  }, [isCoastal, marineState.status, state.tab, update]);
 
   const moduleSheetProps = {
     active: state.tab,
@@ -158,14 +163,17 @@ export default function App() {
             </div>
           </div>
 
-          {/* Desktop right panel — gate hidden md:flex (see ModuleSheet change) */}
-          <ModuleSheet {...moduleSheetProps} />
+          {/* Exactly one ModuleSheet mounts — CSS-hidden double mount ran every data
+              hook and chart twice on all viewports (audit HIGH). Desktop right panel. */}
+          {isDesktop && <ModuleSheet {...moduleSheetProps} />}
         </div>
 
-        {/* Mobile bottom sheet — md:hidden, hosts ModuleSheet content */}
-        <MobileSheet hasLocation={state.coordsA !== null}>
-          <ModuleSheet {...moduleSheetProps} embedded />
-        </MobileSheet>
+        {/* Mobile bottom sheet, hosts ModuleSheet content — only mounted off-desktop */}
+        {!isDesktop && (
+          <MobileSheet hasLocation={state.coordsA !== null}>
+            <ModuleSheet {...moduleSheetProps} embedded />
+          </MobileSheet>
+        )}
 
         <BottomStrip
           coordsA={state.coordsA}
