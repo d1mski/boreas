@@ -6,13 +6,20 @@ export type { SavedLocation } from '../types';
 const STORAGE_KEY = 'settl-saved-locations-v1';
 const MAX_ITEMS = 10;
 
-function load(): SavedLocation[] {
+export function load(): SavedLocation[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
-    const parsed = JSON.parse(raw);
+    const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed as SavedLocation[];
+    return parsed.filter(
+      (l): l is SavedLocation =>
+        typeof l === 'object' && l !== null &&
+        typeof (l as SavedLocation).id === 'string' &&
+        typeof (l as SavedLocation).label === 'string' &&
+        Number.isFinite((l as SavedLocation).lat) &&
+        Number.isFinite((l as SavedLocation).lon),
+    );
   } catch {
     return [];
   }
