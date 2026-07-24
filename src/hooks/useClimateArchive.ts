@@ -185,12 +185,11 @@ async function fetchClimateArchive(
   // DO NOT DIVIDE temperature/wind arrays: they are averaged or max-reduced per
   // bucket, so they naturally represent a single year regardless of N.
   //
-  // Known issue: rainSum is also used as a per-day threshold (>= 1mm) to count
-  // rainDays in buildMonthlyAggregates. Dividing it will deflate rainDays counts
-  // for 5yr/10yr averages (only days with ≥5mm or ≥10mm resp. will count).
-  // This is a known limitation to be addressed in Plan 04's degrade/normalize
-  // logic (e.g. recompute rainDays from undivided precipitationSum, or apply ÷N
-  // to the aggregated count rather than the source values).
+  // rainDays is counted from undivided precipitationSum and ÷N'd inside
+  // buildMonthlyAggregates (fixed 2026-07; see climateAggregation.test.ts).
+  // The ÷N'd sums below need NO further division downstream: accumulating N
+  // years of ÷N daily values into one 12-month bucket already yields one
+  // average year — dividing again would double-divide.
   const n = years;
   const daily: DailyWeather = {
     time: rawTime,                                      // pass through — N years of dates

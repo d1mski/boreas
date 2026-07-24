@@ -81,7 +81,7 @@ export function buildTemperatureHeatmap(hourly: HourlyWeather): HeatmapData {
   return { cells, minTemp, maxTemp };
 }
 
-export function buildMonthlyAggregates(climate: ClimateData): MonthlyAggregate[] {
+export function buildMonthlyAggregates(climate: ClimateData, years: number): MonthlyAggregate[] {
   const daily = climate.daily;
   const hourly = climate.hourly;
   const buckets: Array<{
@@ -143,10 +143,12 @@ export function buildMonthlyAggregates(climate: ClimateData): MonthlyAggregate[]
     if (Number.isFinite(tMax) && tMax > b.tempMax) b.tempMax = tMax;
     if (Number.isFinite(tMax)) { b.highSum += tMax; b.highCount += 1; }
     const rain = daily.rainSum[i];
-    if (Number.isFinite(rain)) {
-      b.rainSum += rain;
-      if (rain >= 1) b.rainDays += 1;
-    }
+    if (Number.isFinite(rain)) b.rainSum += rain;
+    // Wet-day counting must use the UNDIVIDED per-day series. rainSum arrives
+    // ÷N on 5/10-yr archive data, which silently raised the >=1mm threshold to
+    // >=N mm. precipitationSum passes through undivided by design.
+    const precip = daily.precipitationSum[i];
+    if (Number.isFinite(precip) && precip >= 1) b.rainDays += 1;
     const sun = daily.sunshineDuration[i];
     if (Number.isFinite(sun)) b.sunshineSeconds += sun;
     const uv = daily.uvIndexMax[i];
@@ -183,7 +185,7 @@ export function buildMonthlyAggregates(climate: ClimateData): MonthlyAggregate[]
     avgLow: b.lowCount ? b.lowSum / b.lowCount : 0,
     humidityMean: b.humidityCount ? b.humiditySum / b.humidityCount : 0,
     rainSum: b.rainSum,
-    rainDays: b.rainDays,
+    rainDays: Math.round(b.rainDays / years),
     sunshineHours: b.sunshineSeconds / 3600,
     uvMax: b.uvMax,
     windMean: b.windCount ? b.windSum / b.windCount : 0,

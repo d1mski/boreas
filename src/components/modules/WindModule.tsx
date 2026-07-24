@@ -61,7 +61,7 @@ function deriveOne(data: ClimateData | null): Derived | null {
   return {
     data,
     rose,
-    monthly: buildMonthlyAggregates(data),
+    monthly: buildMonthlyAggregates(data, 1),
     seasonal: summariseSeasonalWind(data.hourly),
   };
 }

@@ -72,7 +72,7 @@ function deriveOne(data: ClimateData | null, years: number): Derived | null {
     : raw;
   return {
     heatmap: buildTemperatureHeatmap(data.hourly),
-    monthly: buildMonthlyAggregates(data),
+    monthly: buildMonthlyAggregates(data, years),
     extremes,
     data,
   };
