@@ -73,11 +73,11 @@ export default function App() {
     [update],
   );
 
-  const toggleView = useCallback(() => setViewMode(v => {
-    const next = v === 'overview' ? 'advanced' : 'overview';
+  const toggleView = useCallback(() => {
+    const next = viewMode === 'overview' ? 'advanced' : 'overview';
     if (next === 'overview') window.umami?.track('report-view');
-    return next;
-  }), []);
+    setViewMode(next);
+  }, [viewMode]);
 
   const handleDrillDown = useCallback((tab: TabId) => {
     update({ tab });
