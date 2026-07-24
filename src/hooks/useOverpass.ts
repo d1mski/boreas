@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { BuildingData, Coordinates, ModuleState } from '../types';
 import { initialModuleState } from '../types';
 import { fetchJson } from '../utils/fetcher';
 import { analyseBuildingPolygon, emptyBuilding } from '../utils/buildingOrientation';
 import { haversine } from '../utils/coordinates';
 import { cacheGet, cacheSet, TTL } from '../utils/persistentCache';
+import { createSharedMap, sharedFetch } from '../utils/sharedFetch';
 import { overpassGate } from './overpassGate';
 
 const ENDPOINTS = [
@@ -39,7 +40,7 @@ interface OverpassResponse {
 }
 
 const cache = new Map<string, BuildingData>();
-const inflight = new Map<string, Promise<BuildingData>>();
+const inflight = createSharedMap<BuildingData>();
 
 const COORD_PRECISION = 5;
 
@@ -54,25 +55,6 @@ const KEY_VERSION = 'v2';
 
 function makeKey(coords: Coordinates): string {
   return `${KEY_VERSION}|${coords.lat.toFixed(COORD_PRECISION)}|${coords.lon.toFixed(COORD_PRECISION)}`;
-}
-
-function sharedFetchBuilding(coords: Coordinates): Promise<BuildingData> {
-  const key = makeKey(coords);
-  const existing = inflight.get(key);
-  if (existing) return existing;
-  const ctrl = new AbortController();
-  const p = overpassGate
-    .run(() => fetchBuilding(coords, ctrl.signal))
-    .then((data) => {
-      cache.set(key, data);
-      void cacheSet(key, data, TTL.overpassBuilding);
-      return data;
-    })
-    .finally(() => {
-      inflight.delete(key);
-    });
-  inflight.set(key, p);
-  return p;
 }
 
 async function fetchFromEndpoint(
@@ -216,7 +198,6 @@ export function useOverpassBuilding(
   const [state, setState] = useState<ModuleState<BuildingData>>(() =>
     initialModuleState<BuildingData>(),
   );
-  const controllerRef = useRef<AbortController | null>(null);
 
   const qLat = coords ? Number(coords.lat.toFixed(COORD_PRECISION)) : null;
   const qLon = coords ? Number(coords.lon.toFixed(COORD_PRECISION)) : null;
@@ -234,32 +215,48 @@ export function useOverpassBuilding(
       return;
     }
 
-    controllerRef.current?.abort();
-    const ctrl = new AbortController();
-    controllerRef.current = ctrl;
+    let cancelled = false;
+    // Set once the shared fetch is subscribed; releasing it aborts the
+    // underlying request when this is the last subscriber (see sharedFetch).
+    let release: (() => void) | null = null;
     setState({ status: 'loading', data: null, error: null });
 
     void (async () => {
       const persistent = await cacheGet<BuildingData>(key);
-      if (ctrl.signal.aborted) return;
+      if (cancelled) return;
       if (persistent) {
         cache.set(key, persistent);
         setState({ status: 'success', data: persistent, error: null });
         return;
       }
-      try {
-        const data = await sharedFetchBuilding(qCoords);
-        if (ctrl.signal.aborted) return;
-        setState({ status: 'success', data, error: null });
-      } catch (err: unknown) {
-        if (ctrl.signal.aborted) return;
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        const message = err instanceof Error ? err.message : String(err);
-        setState({ status: 'error', data: null, error: message });
-      }
+
+      const sub = sharedFetch(inflight, key, (signal) =>
+        overpassGate.run(async () => {
+          if (signal.aborted) throw new DOMException('aborted', 'AbortError');
+          const data = await fetchBuilding(qCoords, signal);
+          cache.set(key, data);
+          void cacheSet(key, data, TTL.overpassBuilding);
+          return data;
+        }),
+      );
+      release = sub.release;
+      sub.promise
+        .then((data) => {
+          if (cancelled) return;
+          setState({ status: 'success', data, error: null });
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          const message = err instanceof Error ? err.message : String(err);
+          setState({ status: 'error', data: null, error: message });
+        });
     })();
 
-    return () => ctrl.abort();
+    return () => {
+      cancelled = true;
+      release?.();
+    };
   }, [qLat, qLon]);
 
   return state;
