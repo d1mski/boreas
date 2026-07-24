@@ -11,6 +11,26 @@ import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { FontScaleProvider } from './contexts/FontScaleContext';
 
+// Telemetry — both privacy-light and strictly opt-in via env. Unset = no
+// script loads, no request leaves the page. See .env.example.
+const umamiSrc = import.meta.env.VITE_UMAMI_SRC;
+const umamiId = import.meta.env.VITE_UMAMI_ID;
+if (umamiSrc && umamiId) {
+  const s = document.createElement('script');
+  s.defer = true;
+  s.src = umamiSrc;
+  s.dataset.websiteId = umamiId;
+  document.head.appendChild(s);
+}
+
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+if (sentryDsn) {
+  // Lazy so Sentry never weighs down the entry chunk.
+  void import('@sentry/react').then((Sentry) => {
+    Sentry.init({ dsn: sentryDsn, tracesSampleRate: 0 });
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider>

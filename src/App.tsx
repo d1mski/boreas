@@ -37,6 +37,7 @@ export default function App() {
   const setCoordsA = useCallback(
     (coords: Coordinates | null) => {
       update({ coordsA: coords });
+      if (coords !== null) window.umami?.track('pin-drop');
     },
     [update],
   );
@@ -67,11 +68,16 @@ export default function App() {
     (tab: TabId) => {
       update({ tab });
       setViewMode('advanced');
+      window.umami?.track('module-open', { tab });
     },
     [update],
   );
 
-  const toggleView = useCallback(() => setViewMode(v => v === 'overview' ? 'advanced' : 'overview'), []);
+  const toggleView = useCallback(() => setViewMode(v => {
+    const next = v === 'overview' ? 'advanced' : 'overview';
+    if (next === 'overview') window.umami?.track('report-view');
+    return next;
+  }), []);
 
   const handleDrillDown = useCallback((tab: TabId) => {
     update({ tab });

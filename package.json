@@ -14,6 +14,7 @@
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.0.20",
     "@fontsource/major-mono-display": "^5.0.18",
+    "@sentry/react": "^10.67.0",
     "framer-motion": "^11.11.17",
     "idb-keyval": "^6.2.1",
     "leaflet": "^1.9.4",
