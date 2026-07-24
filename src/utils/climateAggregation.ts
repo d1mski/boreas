@@ -1,4 +1,5 @@
 import type { ClimateData, DailyWeather, HourlyWeather } from '../types';
+import { HEAT_DAY_C } from './severityThresholds';
 
 export interface MonthHourCell {
   tempMean: number;
@@ -200,7 +201,7 @@ export function countExtremeDays(daily: DailyWeather): ExtremeDayCounts {
   let strongGusts = 0;
   const n = daily.time.length;
   for (let i = 0; i < n; i++) {
-    if ((daily.temperatureMax[i] ?? -Infinity) > 35) above35 += 1;
+    if ((daily.temperatureMax[i] ?? -Infinity) >= HEAT_DAY_C) above35 += 1;
     if ((daily.temperatureMin[i] ?? Infinity) < 0) below0 += 1;
     if ((daily.precipitationSum[i] ?? 0) > 20) heavyRain += 1;
     if ((daily.windGustsMax[i] ?? 0) > 60) strongGusts += 1;

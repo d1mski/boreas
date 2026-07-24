@@ -2,6 +2,7 @@ import type { ModuleState, ClimateData, AqiSample, EarthquakeEvent, WildfireEven
 import type { NearbyFeature } from '../hooks/useOverpassFeatures';
 import type { FloodSample } from '../hooks/useFlood';
 import { countExtremeDays } from './climateAggregation';
+import { FIRE_ALERT_KM, FIRE_WATCH_KM, PM25_WATCH, PM25_ALERT } from './severityThresholds';
 
 export type OverviewSeverity = 'ok' | 'watch' | 'alert' | 'unavailable' | 'not-applicable';
 
@@ -77,8 +78,14 @@ export function deriveHazardsSeverity(
     wildfires.status === 'error' || (wildfires.status === 'success' && wildfires.error !== null);
   const eqPending = earthquakes.status === 'idle' || earthquakes.status === 'loading';
   const wfPending = wildfires.status === 'idle' || wildfires.status === 'loading';
-  const anyDegraded = eqDegraded || wfDegraded;
-  const anyPending = eqPending || wfPending;
+  // Fail-closed extension to flood: a flood source that errored/loaded where
+  // flood is APPLICABLE could hide a real river hazard, so it degrades the chip
+  // like eq/wf. not-applicable (no river within 5km) keeps flood fully out.
+  const floodDegraded = !floodNotApplicable && flood.status === 'error';
+  const floodPending =
+    !floodNotApplicable && (flood.status === 'idle' || flood.status === 'loading');
+  const anyDegraded = eqDegraded || wfDegraded || floodDegraded;
+  const anyPending = eqPending || wfPending || floodPending;
 
   if (eqDegraded && wfDegraded) return { severity: 'unavailable', metric: null };
 
@@ -103,8 +110,9 @@ export function deriveHazardsSeverity(
   const recentWf = wfData.filter((w) => now - new Date(w.date).getTime() < MS_YEAR);
   if (recentWf.length > 0) {
     const nearest = recentWf.reduce((a, b) => (a.distanceKm < b.distanceKm ? a : b));
-    if (nearest.distanceKm < 30) hasCriticalWf = true;
-    else hasWatchWf = true;
+    if (nearest.distanceKm < FIRE_ALERT_KM) hasCriticalWf = true;
+    else if (nearest.distanceKm < FIRE_WATCH_KM) hasWatchWf = true;
+    // beyond FIRE_WATCH_KM: recent-but-distant fires no longer inflate the chip
   }
 
   // Compute EQ/wildfire base severity rank (ok=0, watch=1, alert=2)
@@ -151,8 +159,8 @@ export function deriveAirSeverity(state: ModuleState<AqiSample[]>): SeverityResu
   const mean = values.reduce((s, v) => s + v, 0) / values.length;
   const metric = `${mean.toFixed(1)}`;
   let severity: OverviewSeverity;
-  if (mean > 15) severity = 'alert';
-  else if (mean >= 5) severity = 'watch';
+  if (mean > PM25_ALERT) severity = 'alert';
+  else if (mean >= PM25_WATCH) severity = 'watch';
   else severity = 'ok';
   return { severity, metric, unit: 'ug/m3' };
 }
