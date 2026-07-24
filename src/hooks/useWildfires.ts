@@ -174,8 +174,28 @@ async function fetchFirms(
   return parseFirmsCsv(await res.text(), center);
 }
 
-const cache = new Map<string, WildfireEvent[]>();
-const inflight = createSharedMap<{ events: WildfireEvent[]; failedSources: string[] }>();
+interface CachedWildfires {
+  events: WildfireEvent[];
+  failedSources: string[];
+}
+
+// Memory cache keeps failedSources so the degraded marker survives
+// same-session cache hits (a partial result must never be re-served as
+// clean on a later mount). IDB stores bare WildfireEvent[] and only ever
+// receives full successes, so hydration from IDB is always clean.
+const cache = new Map<string, CachedWildfires>();
+const inflight = createSharedMap<CachedWildfires>();
+
+// Single constructor for success state from a cached/fetched entry — every
+// success path (memory hit, IDB hit, live fetch) goes through this so the
+// degraded marker cannot be dropped by one path rebuilding state by hand.
+export function stateFromCached(entry: CachedWildfires): ModuleState<WildfireEvent[]> {
+  return {
+    status: 'success',
+    data: entry.events,
+    error: entry.failedSources.length > 0 ? `${entry.failedSources.join('+')} unavailable` : null,
+  };
+}
 
 function makeKey(coords: Coordinates): string {
   return `wildfire:${coords.lat.toFixed(3)}|${coords.lon.toFixed(3)}`;
@@ -223,7 +243,7 @@ export function useWildfires(
     const key = makeKey(coords);
     const cached = cache.get(key);
     if (cached) {
-      setState({ status: 'success', data: cached, error: null });
+      setState(stateFromCached(cached));
       return;
     }
 
@@ -237,8 +257,10 @@ export function useWildfires(
       const persistent = await cacheGet<WildfireEvent[]>(key);
       if (cancelled) return;
       if (persistent) {
-        cache.set(key, persistent);
-        setState({ status: 'success', data: persistent, error: null });
+        // IDB only ever holds full successes; hydrate as clean.
+        const entry: CachedWildfires = { events: persistent, failedSources: [] };
+        cache.set(key, entry);
+        setState(stateFromCached(entry));
         return;
       }
 
@@ -247,16 +269,15 @@ export function useWildfires(
       sub.promise
         .then(({ events, failedSources }) => {
           if (cancelled) return;
+          const entry: CachedWildfires = { events, failedSources };
+          // Memory cache keeps the degraded marker. Partial results are
+          // session-memory only — NEVER IDB — so a transient outage can't
+          // poison the persistent cache with a false empty.
+          cache.set(key, entry);
           if (failedSources.length === 0) {
-            cache.set(key, events);
             void cacheSet(key, events, WILDFIRE_TTL_MS);
-            setState({ status: 'success', data: events, error: null });
-          } else {
-            // Partial: usable but degraded. Session-memory only — NEVER IDB —
-            // so a transient outage can't poison the cache with a false empty.
-            cache.set(key, events);
-            setState({ status: 'success', data: events, error: `${failedSources.join('+')} unavailable` });
           }
+          setState(stateFromCached(entry));
         })
         .catch((err: unknown) => {
           if (cancelled) return;

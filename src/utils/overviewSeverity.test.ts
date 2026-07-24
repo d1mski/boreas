@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { deriveHazardsSeverity } from './overviewSeverity';
+import { stateFromCached } from '../hooks/useWildfires';
 import type { ModuleState, EarthquakeEvent, WildfireEvent } from '../types';
 import type { FloodSample } from '../hooks/useFlood';
 
@@ -35,6 +36,12 @@ describe('deriveHazardsSeverity honesty', () => {
 
   it('degraded wildfire source (partial success) + nothing found = unavailable', () => {
     const r = deriveHazardsSeverity(ok<EarthquakeEvent[]>([]), degraded<WildfireEvent[]>([]), NO_FLOOD, true);
+    expect(r.severity).toBe('unavailable');
+  });
+
+  it('degraded entry rebuilt from the memory cache still yields unavailable (regression: cache hit dropped the marker)', () => {
+    const fromCache = stateFromCached({ events: [], failedSources: ['FIRMS'] });
+    const r = deriveHazardsSeverity(ok<EarthquakeEvent[]>([]), fromCache, NO_FLOOD, true);
     expect(r.severity).toBe('unavailable');
   });
 });
