@@ -10,7 +10,8 @@ interface CacheEntry<T> {
 }
 
 // Bump to invalidate all cached entries when the schema / parsing changes.
-const SCHEMA_VERSION = 2;
+// 3: FIRMS dates fixed, AqiSample nullable, quake TTL — flush poisoned entries.
+const SCHEMA_VERSION = 3;
 
 export async function cacheGet<T>(key: string): Promise<T | null> {
   try {
