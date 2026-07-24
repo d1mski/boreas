@@ -71,15 +71,16 @@ export function deriveHazardsSeverity(
   flood: ModuleState<FloodSample[]>,
   floodNotApplicable: boolean,
 ): SeverityResult {
-  const eqError = earthquakes.status === 'error';
-  const wfError = wildfires.status === 'error';
-  if (eqError && wfError) return { severity: 'unavailable', metric: null };
+  const eqDegraded = earthquakes.status === 'error';
+  // success + non-null error = partial (one wildfire source failed)
+  const wfDegraded =
+    wildfires.status === 'error' || (wildfires.status === 'success' && wildfires.error !== null);
+  const eqPending = earthquakes.status === 'idle' || earthquakes.status === 'loading';
+  const wfPending = wildfires.status === 'idle' || wildfires.status === 'loading';
+  const anyDegraded = eqDegraded || wfDegraded;
+  const anyPending = eqPending || wfPending;
 
-  const eqLoading = earthquakes.status === 'idle' || earthquakes.status === 'loading';
-  const wfLoading = wildfires.status === 'idle' || wildfires.status === 'loading';
-  if (eqLoading && earthquakes.data === null && wfLoading && wildfires.data === null) {
-    return { severity: 'unavailable', metric: null };
-  }
+  if (eqDegraded && wfDegraded) return { severity: 'unavailable', metric: null };
 
   // Assess earthquake severity directly
   const MS_YEAR = 365 * 24 * 3600 * 1000;
@@ -123,6 +124,13 @@ export function deriveHazardsSeverity(
   }
 
   const finalRank = Math.max(baseRank, floodRank);
+
+  // Honesty rule: a missing/failed source can HIDE hazards but not create
+  // them. Positive findings from live sources always surface; a clean result
+  // is only trustworthy when every source actually reported.
+  if (finalRank === 0 && (anyDegraded || anyPending)) {
+    return { severity: 'unavailable', metric: null };
+  }
   const RANK_TO_SEVERITY: Record<number, [OverviewSeverity, string]> = {
     0: ['ok', 'LOW'],
     1: ['watch', 'MOD'],
