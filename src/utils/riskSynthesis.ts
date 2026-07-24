@@ -242,7 +242,7 @@ function airportNoiseRisk(features: NearbyFeature[]): Risk[] {
 
 function aqiRisk(aqi: AqiSample[]): Risk[] {
   if (aqi.length === 0) return [];
-  const pm25Values = aqi.map((s) => s.pm25).filter((v) => Number.isFinite(v));
+  const pm25Values = aqi.map((s) => s.pm25).filter((v): v is number => v !== null && Number.isFinite(v));
   if (pm25Values.length === 0) return [];
   const mean = pm25Values.reduce((a, b) => a + b, 0) / pm25Values.length;
   const WHO_ANNUAL = 5;

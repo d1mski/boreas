@@ -177,6 +177,14 @@ function mapResult(
 
 const reverseMemoryCache = new Map<string, GeocodeResult>();
 
+// In-flight dedupe wraps the promise BEFORE the throttle queue: two callers
+// racing for the same coords must share one queued request, not each wait
+// out their own MIN_INTERVAL_MS turn. Callers already guard with their own
+// aborted checks after await; sharing a caller's signal would let one
+// consumer's unmount reject the other two, so the shared request runs
+// signal-less (it's 1 small request behind a queue).
+const inflightReverse = new Map<string, Promise<GeocodeResult>>();
+
 function makeReverseKey(coords: Coordinates): string {
   return `nominatim:reverse:${coords.lat.toFixed(5)}|${coords.lon.toFixed(5)}`;
 }
@@ -197,12 +205,14 @@ export async function reverseGeocode(
     return persistent;
   }
 
-  return throttled(async () => {
+  const existing = inflightReverse.get(key);
+  if (existing) return existing;
+
+  const p = throttled(async () => {
     const url =
       `${BASE}/reverse?lat=${coords.lat}&lon=${coords.lon}` +
       `&format=json&zoom=18&addressdetails=1${CONTACT_PARAM}`;
     const res = await fetch(url, {
-      signal,
       headers: { Accept: 'application/json' },
     });
     if (!res.ok) {
@@ -214,7 +224,9 @@ export async function reverseGeocode(
     reverseMemoryCache.set(key, result);
     void cacheSet(key, result, TTL.nominatim);
     return result;
-  });
+  }).finally(() => inflightReverse.delete(key));
+  inflightReverse.set(key, p);
+  return p;
 }
 
 export async function forwardGeocode(

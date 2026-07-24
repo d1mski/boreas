@@ -44,17 +44,24 @@ function aqiBand(aqi: number): { label: string; tone: 'good' | 'warn' | 'risk' }
   return { label: 'EXTREME', tone: 'risk' };
 }
 
-function mean(values: number[]): number {
-  if (values.length === 0) return 0;
+function mean(values: (number | null)[]): number {
+  const valid = values.filter((v): v is number => v !== null && Number.isFinite(v));
+  if (valid.length === 0) return 0;
   let s = 0;
-  for (const v of values) s += v;
-  return s / values.length;
+  for (const v of valid) s += v;
+  return s / valid.length;
+}
+
+function aqiPeak(values: (number | null)[]): number {
+  const valid = values.filter((v): v is number => v !== null && Number.isFinite(v));
+  return valid.length === 0 ? 0 : Math.max(...valid);
 }
 
 function dailyAverage(samples: AqiSample[]): Array<{ date: string; aqi: number }> {
   if (samples.length === 0) return [];
   const map = new Map<string, { sum: number; count: number }>();
   for (const s of samples) {
+    if (s.europeanAqi === null) continue;
     const day = s.time.slice(0, 10);
     const e = map.get(day) ?? { sum: 0, count: 0 };
     e.sum += s.europeanAqi;
@@ -84,7 +91,7 @@ function deriveStats(data: AqiSample[]): Stats {
     no2Mean: mean(data.map((s) => s.no2)),
     o3Mean: mean(data.map((s) => s.o3)),
     aqiMean: mean(data.map((s) => s.europeanAqi)),
-    aqiPeak: Math.max(...data.map((s) => s.europeanAqi)),
+    aqiPeak: aqiPeak(data.map((s) => s.europeanAqi)),
   };
 }
 

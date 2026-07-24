@@ -3,11 +3,12 @@
 // No-river behavior: desert → HTTP 200 all-zeros; ocean → HTTP 200 all-nulls
 // No HTTP 400 case detected — both return 200 (unlike Marine API in Phase 10)
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Coordinates, ModuleState } from '../types';
 import { initialModuleState } from '../types';
 import { fetchJson } from '../utils/fetcher';
 import { cacheGet, cacheSet, TTL } from '../utils/persistentCache';
+import { createSharedMap, sharedFetch } from '../utils/sharedFetch';
 
 const BASE = 'https://flood-api.open-meteo.com/v1/flood';
 const DAILY_VARS = ['river_discharge', 'river_discharge_p25', 'river_discharge_p75'];
@@ -31,6 +32,7 @@ interface FloodResponse {
 const cache = new Map<string, FloodSample[]>();
 // Separate sentinel for not-applicable to avoid null ambiguity
 const notApplicableCache = new Set<string>();
+const inflight = createSharedMap<FloodFetchResult>();
 
 function makeKey(coords: Coordinates): string {
   return `flood|${coords.lat.toFixed(4)}|${coords.lon.toFixed(4)}`;
@@ -46,9 +48,36 @@ function buildUrl(coords: Coordinates): string {
   return `${BASE}?${params.toString()}`;
 }
 
-function isNotApplicable(discharge: (number | null)[]): boolean {
+export function isNotApplicable(discharge: (number | null)[]): boolean {
   // Desert case: all zeros. Ocean case: all nulls. Both = not-applicable.
   return discharge.every(v => v === null || v === 0);
+}
+
+type FloodFetchResult =
+  | { notApplicable: true }
+  | { notApplicable: false; samples: FloodSample[] };
+
+// Fetch + not-applicable classification run together behind the shared
+// in-flight promise so concurrent subscribers see one network request and
+// one classification pass (see sharedFetch).
+async function fetchAndClassify(
+  coords: Coordinates,
+  signal: AbortSignal,
+): Promise<FloodFetchResult> {
+  const url = buildUrl(coords);
+  const raw = await fetchJson<FloodResponse>(url, { signal, timeoutMs: 20000 });
+
+  if (isNotApplicable(raw.daily.river_discharge)) {
+    return { notApplicable: true };
+  }
+
+  const samples: FloodSample[] = raw.daily.time.map((t, i) => ({
+    time: t,
+    riverDischarge: raw.daily.river_discharge[i],
+    p25: raw.daily.river_discharge_p25[i],
+    p75: raw.daily.river_discharge_p75[i],
+  }));
+  return { notApplicable: false, samples };
 }
 
 export function useFlood(
@@ -58,7 +87,6 @@ export function useFlood(
     () => initialModuleState<FloodSample[]>(),
   );
   const [notApplicable, setNotApplicable] = useState(false);
-  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!coords) {
@@ -80,16 +108,17 @@ export function useFlood(
       return;
     }
 
-    controllerRef.current?.abort();
-    const ctrl = new AbortController();
-    controllerRef.current = ctrl;
+    let cancelled = false;
+    // Set once the shared fetch is subscribed; releasing it aborts the
+    // underlying request when this is the last subscriber (see sharedFetch).
+    let release: (() => void) | null = null;
     setState({ status: 'loading', data: null, error: null });
     setNotApplicable(false);
 
     void (async () => {
       // Check persistent cache
       const persistent = await cacheGet<FloodSample[] | 'not-applicable'>(key);
-      if (ctrl.signal.aborted) return;
+      if (cancelled) return;
       if (persistent === 'not-applicable') {
         notApplicableCache.add(key);
         setState({ status: 'success', data: [], error: null });
@@ -102,38 +131,37 @@ export function useFlood(
         return;
       }
 
-      try {
-        const url = buildUrl(coords);
-        const raw = await fetchJson<FloodResponse>(url, { signal: ctrl.signal, timeoutMs: 20000 });
-        if (ctrl.signal.aborted) return;
-
-        if (isNotApplicable(raw.daily.river_discharge)) {
-          notApplicableCache.add(key);
-          void cacheSet(key, 'not-applicable', TTL.openMeteoFlood);
-          setState({ status: 'success', data: [], error: null });
-          setNotApplicable(true);
-          return;
-        }
-
-        const samples: FloodSample[] = raw.daily.time.map((t, i) => ({
-          time: t,
-          riverDischarge: raw.daily.river_discharge[i],
-          p25: raw.daily.river_discharge_p25[i],
-          p75: raw.daily.river_discharge_p75[i],
-        }));
-        cache.set(key, samples);
-        void cacheSet(key, samples, TTL.openMeteoFlood);
-        setState({ status: 'success', data: samples, error: null });
-        setNotApplicable(false);
-      } catch (err: unknown) {
-        if (ctrl.signal.aborted) return;
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        const message = err instanceof Error ? err.message : String(err);
-        setState({ status: 'error', data: null, error: message });
-      }
+      const sub = sharedFetch(inflight, key, (signal) => fetchAndClassify(coords, signal));
+      release = sub.release;
+      sub.promise
+        .then((result) => {
+          if (cancelled) return;
+          if (result.notApplicable) {
+            // Sentinel is a successful result — genuinely no river within
+            // range, not a failure — so it caches like any other success.
+            notApplicableCache.add(key);
+            void cacheSet(key, 'not-applicable', TTL.openMeteoFlood);
+            setState({ status: 'success', data: [], error: null });
+            setNotApplicable(true);
+            return;
+          }
+          cache.set(key, result.samples);
+          void cacheSet(key, result.samples, TTL.openMeteoFlood);
+          setState({ status: 'success', data: result.samples, error: null });
+          setNotApplicable(false);
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          const message = err instanceof Error ? err.message : String(err);
+          setState({ status: 'error', data: null, error: message });
+        });
     })();
 
-    return () => ctrl.abort();
+    return () => {
+      cancelled = true;
+      release?.();
+    };
   }, [coords?.lat, coords?.lon]);
 
   return { ...state, notApplicable };

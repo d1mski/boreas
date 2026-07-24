@@ -128,11 +128,11 @@ export interface WildfireEvent {
 
 export interface AqiSample {
   time: string;
-  europeanAqi: number;
-  pm10: number;
-  pm25: number;
-  no2: number;
-  o3: number;
+  europeanAqi: number | null;
+  pm10: number | null;
+  pm25: number | null;
+  no2: number | null;
+  o3: number | null;
   alderPollen: number | null;
   birchPollen: number | null;
   grassPollen: number | null;

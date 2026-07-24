@@ -296,10 +296,10 @@ export function ReportPanel({ coordsA, resolvedA, countryA, onDrillDown, climate
     /* Air Quality */
     const airMetrics: Metric[] = aqiData && aqiData.length > 0
       ? [
-          { value: fmt(avg(aqiData.map(s => s.pm25)), 1), label: 'PM2.5 mean' },
-          { value: fmt(avg(aqiData.map(s => s.pm10)), 1), label: 'PM10 mean' },
-          { value: fmt(avg(aqiData.map(s => s.no2)), 1), label: 'NO\u2082 mean' },
-          { value: fmt(avg(aqiData.map(s => s.o3)), 1), label: 'O\u2083 mean' },
+          { value: fmt(avg(aqiData.map(s => s.pm25).filter((v): v is number => v !== null)), 1), label: 'PM2.5 mean' },
+          { value: fmt(avg(aqiData.map(s => s.pm10).filter((v): v is number => v !== null)), 1), label: 'PM10 mean' },
+          { value: fmt(avg(aqiData.map(s => s.no2).filter((v): v is number => v !== null)), 1), label: 'NO\u2082 mean' },
+          { value: fmt(avg(aqiData.map(s => s.o3).filter((v): v is number => v !== null)), 1), label: 'O\u2083 mean' },
         ]
       : [
           { value: '--', label: 'PM2.5 mean' },

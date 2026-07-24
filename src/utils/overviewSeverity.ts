@@ -144,7 +144,11 @@ export function deriveAirSeverity(state: ModuleState<AqiSample[]>): SeverityResu
   if (state.status !== 'success' || state.data === null || state.data.length === 0) {
     return { severity: 'unavailable', metric: null };
   }
-  const mean = state.data.reduce((s, d) => s + d.pm25, 0) / state.data.length;
+  const values = state.data
+    .map((d) => d.pm25)
+    .filter((v): v is number => v !== null && Number.isFinite(v));
+  if (values.length === 0) return { severity: 'unavailable', metric: null };
+  const mean = values.reduce((s, v) => s + v, 0) / values.length;
   const metric = `${mean.toFixed(1)}`;
   let severity: OverviewSeverity;
   if (mean > 15) severity = 'alert';
