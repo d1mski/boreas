@@ -19,6 +19,7 @@ export default defineConfig({
   server: { port: 5173 },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    // .tsx tests opt into jsdom per-file via `// @vitest-environment jsdom`.
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
   },
 });
