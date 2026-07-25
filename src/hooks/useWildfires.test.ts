@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseFirmsCsv, stateFromCached } from './useWildfires';
+import { isStaleDegraded, parseFirmsCsv, stateFromCached } from './useWildfires';
 
 const CENTER = { lat: 50.2, lon: -5.48 };
 const CSV = [
@@ -65,5 +65,30 @@ describe('stateFromCached', () => {
     const clean = stateFromCached({ events: [], failedSources: [] });
     expect(clean.status).toBe('success');
     expect(clean.error).toBeNull();
+  });
+});
+
+describe('isStaleDegraded', () => {
+  const NOW = 1_800_000_000_000;
+  const FIVE_MIN = 5 * 60 * 1000;
+
+  it('never retries a clean entry, however old', () => {
+    expect(isStaleDegraded({ events: [], failedSources: [], at: 0 }, NOW)).toBe(false);
+  });
+
+  it('holds a fresh degraded entry rather than hammering a source that just failed', () => {
+    expect(
+      isStaleDegraded({ events: [], failedSources: ['FIRMS'], at: NOW - 1000 }, NOW),
+    ).toBe(false);
+  });
+
+  it('retries a degraded entry once the cooldown passes', () => {
+    expect(
+      isStaleDegraded({ events: [], failedSources: ['FIRMS'], at: NOW - FIVE_MIN - 1 }, NOW),
+    ).toBe(true);
+  });
+
+  it('retries an unstamped degraded entry', () => {
+    expect(isStaleDegraded({ events: [], failedSources: ['EONET'] }, NOW)).toBe(true);
   });
 });

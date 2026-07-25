@@ -45,12 +45,13 @@ export async function cacheSet<T>(key: string, data: T, ttlMs: number): Promise<
   }
 }
 
+/**
+ * Unlike the read/write helpers, this one does NOT swallow. A failed wipe that
+ * reports success tells the user their data is gone when it isn't — the caller
+ * has to be able to say so.
+ */
 export async function cacheClear(): Promise<void> {
-  try {
-    await clear(store);
-  } catch {
-    // swallow
-  }
+  await clear(store);
 }
 
 export async function cacheKeys(): Promise<IDBValidKey[]> {

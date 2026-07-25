@@ -5,6 +5,7 @@ import { fetchJson } from '../utils/fetcher';
 import { haversine } from '../utils/coordinates';
 import { cacheGet, cacheSet, TTL } from '../utils/persistentCache';
 import { createSharedMap, sharedFetch } from '../utils/sharedFetch';
+import { sleep } from '../utils/sleep';
 import { overpassGate } from './overpassGate';
 
 const ENDPOINTS = [
@@ -183,8 +184,9 @@ async function fetchFeatures(
     } catch (err) {
       if (signal.aborted) throw err;
       lastErr = err;
-      const backoff = 800 * (i + 1);
-      await new Promise((resolve) => setTimeout(resolve, backoff));
+      // Abortable: an abandoned retry must not sleep through its backoff
+      // still holding an overpassGate slot.
+      await sleep(800 * (i + 1), signal);
     }
   }
   throw lastErr instanceof Error ? lastErr : new Error('Overpass unreachable');

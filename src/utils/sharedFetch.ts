@@ -33,7 +33,10 @@ export function sharedFetch<T>(
   factory: (signal: AbortSignal) => Promise<T>,
 ): SharedSubscription<T> {
   let entry = map.get(key);
-  if (!entry || entry.ctrl.signal.aborted) {
+  // `settled` is normally unreachable here — the finally below deletes the
+  // entry — but a subscriber arriving in the microtask gap would otherwise
+  // adopt a finished promise, inheriting a stale rejection it cannot retry.
+  if (!entry || entry.ctrl.signal.aborted || entry.settled) {
     const ctrl = new AbortController();
     const fresh: SharedEntry<T> = { ctrl, subs: 0, settled: false, promise: undefined as unknown as Promise<T> };
     fresh.promise = factory(ctrl.signal).finally(() => {

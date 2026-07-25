@@ -59,6 +59,21 @@ describe('handleWipe', () => {
     await handleWipe();
     expect(window.location.reload).toHaveBeenCalled();
   });
+
+  it('tells the user and keeps their data when IndexedDB refuses to clear', async () => {
+    const alerted = vi.fn();
+    vi.stubGlobal('alert', alerted);
+    localStorage.setItem(STORAGE_KEY, '[{"label":"home"}]');
+    const cache = await import('../../utils/persistentCache');
+    vi.spyOn(cache, 'cacheClear').mockRejectedValueOnce(new Error('blocked'));
+
+    await handleWipe();
+
+    expect(alerted).toHaveBeenCalled();
+    // Silence here would be the real bug: user believes the device is clean.
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('[{"label":"home"}]');
+    expect(window.location.reload).not.toHaveBeenCalled();
+  });
 });
 
 describe('handleExport', () => {

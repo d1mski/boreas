@@ -272,7 +272,7 @@ function heatRisk(climate: ClimateData): Risk[] {
       category: 'heat',
       severity: hotDays > 30 ? 'warn' : 'watch',
       title: 'HEAT STRESS',
-      detail: `${hotDays} days ≥ 35°C past 12 mo · cooling demand + health risk`,
+      detail: `${hotDays} days ≥ ${HEAT_DAY_C}°C past 12 mo · cooling demand + health risk`,
     },
   ];
 }

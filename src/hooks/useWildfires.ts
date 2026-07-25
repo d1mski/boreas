@@ -177,6 +177,17 @@ async function fetchFirms(
 interface CachedWildfires {
   events: WildfireEvent[];
   failedSources: string[];
+  /** When the entry was stored. Only consulted for degraded entries. */
+  at?: number;
+}
+
+// A partial result was previously pinned in memory for the whole session, so a
+// one-off FIRMS blip left the module reading "FIRMS unavailable" until reload
+// even after the source recovered. Degraded entries are re-tried after this.
+const DEGRADED_RETRY_MS = 5 * 60 * 1000;
+
+export function isStaleDegraded(entry: CachedWildfires, now: number): boolean {
+  return entry.failedSources.length > 0 && now - (entry.at ?? 0) > DEGRADED_RETRY_MS;
 }
 
 // Memory cache keeps failedSources so the degraded marker survives
@@ -242,7 +253,8 @@ export function useWildfires(
     }
     const key = makeKey(coords);
     const cached = cache.get(key);
-    if (cached) {
+    const retryDegraded = cached ? isStaleDegraded(cached, Date.now()) : false;
+    if (cached && !retryDegraded) {
       setState(stateFromCached(cached));
       return;
     }
@@ -251,14 +263,17 @@ export function useWildfires(
     // Set once the shared fetch is subscribed; releasing it aborts the
     // underlying request when this is the last subscriber (see sharedFetch).
     let release: (() => void) | null = null;
-    setState({ status: 'loading', data: null, error: null });
+    // On a degraded retry keep the partial result on screen — blanking it to a
+    // skeleton would lose the "FIRMS unavailable" note the user is reading.
+    if (cached) setState(stateFromCached(cached));
+    else setState({ status: 'loading', data: null, error: null });
 
     void (async () => {
       const persistent = await cacheGet<WildfireEvent[]>(key);
       if (cancelled) return;
       if (persistent) {
         // IDB only ever holds full successes; hydrate as clean.
-        const entry: CachedWildfires = { events: persistent, failedSources: [] };
+        const entry: CachedWildfires = { events: persistent, failedSources: [], at: Date.now() };
         cache.set(key, entry);
         setState(stateFromCached(entry));
         return;
@@ -269,7 +284,7 @@ export function useWildfires(
       sub.promise
         .then(({ events, failedSources }) => {
           if (cancelled) return;
-          const entry: CachedWildfires = { events, failedSources };
+          const entry: CachedWildfires = { events, failedSources, at: Date.now() };
           // Memory cache keeps the degraded marker. Partial results are
           // session-memory only — NEVER IDB — so a transient outage can't
           // poison the persistent cache with a false empty.

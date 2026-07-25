@@ -35,7 +35,17 @@ export function handleExport() {
 
 export async function handleWipe() {
   if (!window.confirm('Delete all saved locations, settings, and cached data on this device?')) return;
-  await cacheClear();
+  try {
+    await cacheClear();
+  } catch {
+    // Reporting a wipe that didn't happen is the one outcome worse than
+    // failing: the user walks away believing the device is clean.
+    window.alert(
+      'Could not clear the cached data (your browser blocked it — private mode can do this). ' +
+        'Saved locations and settings were left untouched. Clear site data from your browser settings instead.',
+    );
+    return;
+  }
   for (const k of Object.keys(localStorage)) {
     if (k.startsWith('settl-')) localStorage.removeItem(k);
   }
