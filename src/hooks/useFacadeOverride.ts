@@ -9,12 +9,30 @@ const STORAGE_KEY = 'settl-facade-overrides-v1';
 const store = new Map<string, FacadeLabel>(loadFromStorage());
 const listeners = new Set<() => void>();
 
-function loadFromStorage(): [string, FacadeLabel][] {
+const FACADE_LABELS: readonly FacadeLabel[] = ['Front', 'Right', 'Rear', 'Left'];
+
+function isEntry(v: unknown): v is [string, FacadeLabel] {
+  return (
+    Array.isArray(v) &&
+    v.length === 2 &&
+    typeof v[0] === 'string' &&
+    FACADE_LABELS.includes(v[1] as FacadeLabel)
+  );
+}
+
+/**
+ * Runs at module scope, so anything it throws happens at import time — before
+ * React mounts and outside every error boundary, i.e. a white screen. The old
+ * `Array.isArray(parsed)` guard let `["a","b"]` through and `new Map` rejected
+ * it. Every element is checked now; junk entries are dropped, not fatal.
+ */
+export function loadFromStorage(): [string, FacadeLabel][] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(isEntry);
   } catch {
     return [];
   }
