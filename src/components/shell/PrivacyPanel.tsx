@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { cacheClear } from '../../utils/persistentCache';
 import { STORAGE_KEY } from '../../hooks/useSavedLocations';
 
@@ -52,14 +52,44 @@ export async function handleWipe() {
   window.location.reload();
 }
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 export function PrivacyPanel({ open, onClose }: Props) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!open) return;
+    // aria-modal="true" only tells assistive tech the rest is inert; without a
+    // real trap, Tab still walks the map behind the dialog.
+    const restoreTo = document.activeElement as HTMLElement | null;
+    dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+      const items = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !dialogRef.current.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
+
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      restoreTo?.focus();
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -70,6 +100,7 @@ export function PrivacyPanel({ open, onClose }: Props) {
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="privacy-panel-title"

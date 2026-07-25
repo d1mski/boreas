@@ -17,6 +17,16 @@ export default defineConfig({
     alias: { '@': path.resolve(__dirname, 'src') },
   },
   server: { port: 5173 },
+  build: {
+    rollupOptions: {
+      output: {
+        // @sentry/react's entry is index.js, so its lazy chunk was emitted as
+        // another index-*.js — indistinguishable from the app entry in the
+        // bundle report. Naming it keeps the dynamic import lazy.
+        manualChunks: (id) => (id.includes('@sentry') ? 'sentry' : undefined),
+      },
+    },
+  },
   test: {
     environment: 'node',
     // .tsx tests opt into jsdom per-file via `// @vitest-environment jsdom`.

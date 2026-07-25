@@ -6,6 +6,8 @@ export type { SavedLocation } from '../types';
 export const STORAGE_KEY = 'settl-saved-locations-v1';
 const MAX_ITEMS = 10;
 
+// Exported for its unit test (localStorage parsing has to reject malformed
+// entries); the app itself should go through useSavedLocations.
 export function load(): SavedLocation[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

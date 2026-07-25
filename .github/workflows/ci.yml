@@ -1,8 +1,16 @@
 name: ci
+# push was on '**', which double-ran every PR branch: once for the push and
+# again for the pull_request event. Branch pushes get their run via the PR.
 on:
   push:
-    branches: ['**']
+    branches: [master]
   pull_request:
+
+# A follow-up push supersedes the run already in flight for the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest

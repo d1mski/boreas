@@ -4,10 +4,11 @@
 // "delete everything on this device". Both are claims that fail silently when
 // wrong — the UI looks identical whether the wipe cleared IndexedDB or not.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import 'fake-indexeddb/auto';
 import { cacheGet, cacheSet, cacheKeys } from '../../utils/persistentCache';
 import { STORAGE_KEY } from '../../hooks/useSavedLocations';
-import { handleExport, handleWipe } from './PrivacyPanel';
+import { PrivacyPanel, handleExport, handleWipe } from './PrivacyPanel';
 
 beforeEach(() => {
   localStorage.clear();
@@ -20,6 +21,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -118,5 +120,55 @@ describe('handleExport', () => {
     const cap = captureDownload();
     expect(() => handleExport()).not.toThrow();
     expect(cap.clicked).toHaveLength(1);
+  });
+});
+
+describe('PrivacyPanel focus handling', () => {
+  it('moves focus into the dialog on open', () => {
+    render(<PrivacyPanel open onClose={() => {}} />);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.contains(document.activeElement)).toBe(true);
+  });
+
+  it('wraps Tab from the last control back to the first', () => {
+    render(<PrivacyPanel open onClose={() => {}} />);
+    const dialog = screen.getByRole('dialog');
+    const items = Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button'));
+    const first = items[0];
+    const last = items[items.length - 1];
+
+    last.focus();
+    fireEvent.keyDown(document, { key: 'Tab' });
+    // Without the trap, focus would escape to the map behind the dialog.
+    expect(document.activeElement).toBe(first);
+  });
+
+  it('wraps Shift+Tab from the first control to the last', () => {
+    render(<PrivacyPanel open onClose={() => {}} />);
+    const dialog = screen.getByRole('dialog');
+    const items = Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button'));
+
+    items[0].focus();
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(items[items.length - 1]);
+  });
+
+  it('closes on Escape', () => {
+    const onClose = vi.fn();
+    render(<PrivacyPanel open onClose={onClose} />);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('restores focus to the opener on close', () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+
+    const view = render(<PrivacyPanel open onClose={() => {}} />);
+    expect(document.activeElement).not.toBe(opener);
+    view.unmount();
+    expect(document.activeElement).toBe(opener);
+    opener.remove();
   });
 });

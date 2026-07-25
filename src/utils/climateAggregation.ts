@@ -185,9 +185,13 @@ export function buildMonthlyAggregates(climate: ClimateData, years: number): Mon
     avgHigh: b.highCount ? b.highSum / b.highCount : 0,
     avgLow: b.lowCount ? b.lowSum / b.lowCount : 0,
     humidityMean: b.humidityCount ? b.humiditySum / b.humidityCount : 0,
+    // NO ÷years here, deliberately. useClimateArchive already divides the
+    // sum-type daily series by N (see its NORMALIZATION block), so summing N
+    // years of ÷N values into one month bucket is already an average year.
+    // Dividing again is the double-divide the audit fixed.
     rainSum: b.rainSum,
-    rainDays: Math.round(b.rainDays / years),
-    sunshineHours: b.sunshineSeconds / 3600,
+    rainDays: Math.round(b.rainDays / years), // ÷years: counted from the UNDIVIDED series
+    sunshineHours: b.sunshineSeconds / 3600, // seconds→hours only; already ÷N
     uvMax: b.uvMax,
     windMean: b.windCount ? b.windSum / b.windCount : 0,
     gustMax: b.gustMax,

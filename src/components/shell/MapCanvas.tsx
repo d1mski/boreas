@@ -106,7 +106,14 @@ function FlyToListener() {
   useEffect(() => {
     const handler = (e: Event) => {
       const { lat, lon, title, url } = (e as CustomEvent).detail;
-      if (typeof lat !== 'number' || typeof lon !== 'number') return;
+      if (typeof lat !== 'number' || typeof lon !== 'number') {
+        // Silent in prod (a bad event should not break the map), loud in dev —
+        // otherwise a mistyped dispatch just makes fly-to quietly do nothing.
+        if (import.meta.env.DEV) {
+          console.warn('settl-flyto: ignoring event with non-numeric coords', { lat, lon });
+        }
+        return;
+      }
       map.flyTo([lat, lon], Math.max(map.getZoom(), 16));
       if (typeof title === 'string' && title) {
         const safeUrl = safeHttpsUrl(url);
