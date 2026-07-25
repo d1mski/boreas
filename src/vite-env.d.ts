@@ -2,6 +2,8 @@
 
 interface ImportMetaEnv {
   readonly VITE_FIRMS_MAP_KEY?: string;
+  readonly VITE_NOMINATIM_CONTACT?: string;
+  readonly VITE_WINDY_KEY?: string;
   readonly VITE_UMAMI_SRC?: string;
   readonly VITE_UMAMI_ID?: string;
   readonly VITE_SENTRY_DSN?: string;

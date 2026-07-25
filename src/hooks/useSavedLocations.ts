@@ -3,7 +3,7 @@ import type { SavedLocation } from '../types';
 
 export type { SavedLocation } from '../types';
 
-const STORAGE_KEY = 'settl-saved-locations-v1';
+export const STORAGE_KEY = 'settl-saved-locations-v1';
 const MAX_ITEMS = 10;
 
 export function load(): SavedLocation[] {

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { cacheClear } from '../../utils/persistentCache';
+import { STORAGE_KEY } from '../../hooks/useSavedLocations';
 
 interface Props {
   open: boolean;
@@ -19,7 +20,7 @@ const RECIPIENTS = [
 ];
 
 function handleExport() {
-  const raw = localStorage.getItem('settl-saved-locations-v1') ?? '[]';
+  const raw = localStorage.getItem(STORAGE_KEY) ?? '[]';
   const blob = new Blob([raw], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

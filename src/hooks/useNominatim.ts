@@ -4,7 +4,7 @@ import { cacheGet, cacheSet, TTL } from '../utils/persistentCache';
 
 const MIN_INTERVAL_MS = 1100;
 const BASE = 'https://nominatim.openstreetmap.org';
-const CONTACT = (import.meta.env.VITE_NOMINATIM_CONTACT as string | undefined) ?? '';
+const CONTACT = import.meta.env.VITE_NOMINATIM_CONTACT ?? '';
 const CONTACT_PARAM = CONTACT ? `&email=${encodeURIComponent(CONTACT)}` : '';
 
 let lastRequestAt = 0;
