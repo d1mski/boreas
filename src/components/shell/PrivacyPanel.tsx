@@ -19,7 +19,10 @@ const RECIPIENTS = [
   'CARTO (map tiles)',
 ];
 
-function handleExport() {
+// Exported for test: "wipe actually wipes" and "export produces valid JSON"
+// are data-loss/privacy claims the UI makes to the user, so they get asserted
+// rather than eyeballed.
+export function handleExport() {
   const raw = localStorage.getItem(STORAGE_KEY) ?? '[]';
   const blob = new Blob([raw], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -30,7 +33,7 @@ function handleExport() {
   URL.revokeObjectURL(url);
 }
 
-async function handleWipe() {
+export async function handleWipe() {
   if (!window.confirm('Delete all saved locations, settings, and cached data on this device?')) return;
   await cacheClear();
   for (const k of Object.keys(localStorage)) {

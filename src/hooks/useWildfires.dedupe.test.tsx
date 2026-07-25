@@ -9,7 +9,7 @@
 // These cover what the pure-function tests can't: that the hook actually wires
 // sharedFetch up right on mount, unmount, and coord change. Manual QA can't
 // read this reliably in dev because StrictMode double-invokes every effect.
-import { render, waitFor } from '@testing-library/react';
+import { cleanup, render, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // IDB is irrelevant here and would just add async noise — always miss.
@@ -73,6 +73,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.unstubAllGlobals();
 });
 
