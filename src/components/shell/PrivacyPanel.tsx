@@ -7,6 +7,20 @@ interface Props {
   onClose: () => void;
 }
 
+// Analytics and error reporting are env-gated, so they are only named when
+// they are actually running — the panel claims to list everything that leaves
+// the browser, and listing a service that isn't loaded would be its own lie.
+function optionalRecipients(): string[] {
+  const out: string[] = [];
+  if (import.meta.env.VITE_UMAMI_SRC && import.meta.env.VITE_UMAMI_ID) {
+    out.push('Umami (anonymous usage counts — page views and which modules are opened, with the coordinates stripped from the URL)');
+  }
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    out.push('Sentry (error reports, if something crashes)');
+  }
+  return out;
+}
+
 const RECIPIENTS = [
   'Open-Meteo (weather, climate, air, marine, flood, elevation)',
   'Nominatim/OSM (addresses)',
@@ -92,6 +106,8 @@ export function PrivacyPanel({ open, onClose }: Props) {
     };
   }, [open, onClose]);
 
+  const optional = optionalRecipients();
+
   if (!open) return null;
 
   return (
@@ -146,6 +162,21 @@ export function PrivacyPanel({ open, onClose }: Props) {
                 </li>
               ))}
             </ul>
+            {optional.length > 0 && (
+              <>
+                <p className="text-[10px] font-mono text-ink leading-snug mt-3 mb-2">
+                  These do not receive your coordinates, but they do see that you used the app:
+                </p>
+                <ul className="space-y-1">
+                  {optional.map((r) => (
+                    <li key={r} className="text-[10px] font-mono text-muted leading-snug pl-3 relative">
+                      <span className="absolute left-0 text-dim">·</span>
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </section>
 
           <section>

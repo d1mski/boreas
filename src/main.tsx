@@ -17,17 +17,14 @@ import './index.css';
 import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { FontScaleProvider } from './contexts/FontScaleContext';
+import { createUmamiScript } from './utils/telemetry';
 
 // Telemetry — both privacy-light and strictly opt-in via env. Unset = no
 // script loads, no request leaves the page. See .env.example.
 const umamiSrc = import.meta.env.VITE_UMAMI_SRC;
 const umamiId = import.meta.env.VITE_UMAMI_ID;
 if (umamiSrc && umamiId) {
-  const s = document.createElement('script');
-  s.defer = true;
-  s.src = umamiSrc;
-  s.dataset.websiteId = umamiId;
-  document.head.appendChild(s);
+  document.head.appendChild(createUmamiScript(umamiSrc, umamiId));
 }
 
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
