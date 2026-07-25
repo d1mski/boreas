@@ -64,14 +64,20 @@ export default function App() {
     update({ coordsB: null, slot: 'a' });
   }, [update]);
 
-  const selectTab = useCallback(
-    (tab: TabId) => {
+  // Every path that opens a module goes through here. Drill-downs used to be a
+  // separate copy of this without the track call, so "Go deeper" traffic was
+  // invisible in analytics; `source` keeps them distinguishable without
+  // splitting the event, so totals stay correct.
+  const openModule = useCallback(
+    (tab: TabId, source: 'rail' | 'drill-down' | 'map' = 'rail') => {
       update({ tab });
       setViewMode('advanced');
-      window.umami?.track('module-open', { tab });
+      window.umami?.track('module-open', { tab, source });
     },
     [update],
   );
+
+  const selectTab = useCallback((tab: TabId) => openModule(tab), [openModule]);
 
   const toggleView = useCallback(() => {
     const next = viewMode === 'overview' ? 'advanced' : 'overview';
@@ -79,18 +85,18 @@ export default function App() {
     setViewMode(next);
   }, [viewMode]);
 
-  const handleDrillDown = useCallback((tab: TabId) => {
-    update({ tab });
-    setViewMode('advanced');
-  }, [update]);
+  const handleDrillDown = useCallback(
+    (tab: TabId) => openModule(tab, 'drill-down'),
+    [openModule],
+  );
 
   // A webcam map marker's "VIEW FOOTAGE" opens the Advanced sidebar on the Context tab,
   // where the panel grid expands the selected cam's player.
   useEffect(() => {
-    const handler = () => handleDrillDown('context');
+    const handler = () => openModule('context', 'map');
     window.addEventListener('boreas-webcam-select', handler);
     return () => window.removeEventListener('boreas-webcam-select', handler);
-  }, [handleDrillDown]);
+  }, [openModule]);
 
   // C-02: marine tab vanishes when an active-marine pin becomes inland — revert to climate.
   // Only fires on a confirmed-inland SUCCESS; an API error must not be read as "inland".

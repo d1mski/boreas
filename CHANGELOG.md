@@ -41,7 +41,21 @@ worse than no read at all, and several paths did exactly that.
 - **Test suite and CI** — 87 tests covering the severity maths, cache rules,
   request sharing, popup escaping and the privacy controls, run on every PR.
 
+### Fixed
+- **Pinned coordinates no longer reach the analytics host.** The location is
+  kept in the URL as `?lat=…&lon=…` so a view can be shared, and Umami's
+  tracker follows history changes — so every pin drop was sending the exact
+  queried coordinates as the pageview URL. The tracker is now configured to
+  strip query strings before sending anything.
+- **"Go deeper" drill-downs are counted.** Opening a module from an Overview
+  card set the tab without recording it, so that route was invisible in
+  analytics. All three entry points (module rail, drill-down, map marker) now
+  record the same event, tagged with where it came from.
+
 ### Changed
+- The privacy panel names analytics and error reporting as recipients when
+  they are switched on. It claims to list everything that leaves the browser,
+  and previously listed only the data providers.
 - **Renamed from settl. to Boreas.** Everything user-facing carries the new
   name; the repository moved to `github.com/d1mski/boreas` and the app now
   deploys under `/experiments/boreas/`.
