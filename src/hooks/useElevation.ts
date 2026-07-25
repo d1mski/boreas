@@ -36,6 +36,7 @@ export function useElevation(coords: Coordinates | null): ElevationState {
     controllerRef.current?.abort();
     const ctrl = new AbortController();
     controllerRef.current = ctrl;
+    setElevation(null); // pin B must never render/score with pin A's elevation while its own fetch is pending
     setLoading(true);
 
     void (async () => {
@@ -66,6 +67,7 @@ export function useElevation(coords: Coordinates | null): ElevationState {
       } catch (err: unknown) {
         if (ctrl.signal.aborted) return;
         if (err instanceof DOMException && err.name === 'AbortError') return;
+        setElevation(null);
         setLoading(false);
       }
     })();

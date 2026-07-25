@@ -2,6 +2,7 @@ import type { ModuleState, ClimateData, AqiSample, EarthquakeEvent, WildfireEven
 import type { NearbyFeature } from '../hooks/useOverpassFeatures';
 import type { FloodSample } from '../hooks/useFlood';
 import { countExtremeDays } from './climateAggregation';
+import { FIRE_ALERT_KM, FIRE_WATCH_KM, PM25_WATCH, PM25_ALERT } from './severityThresholds';
 
 export type OverviewSeverity = 'ok' | 'watch' | 'alert' | 'unavailable' | 'not-applicable';
 
@@ -71,15 +72,22 @@ export function deriveHazardsSeverity(
   flood: ModuleState<FloodSample[]>,
   floodNotApplicable: boolean,
 ): SeverityResult {
-  const eqError = earthquakes.status === 'error';
-  const wfError = wildfires.status === 'error';
-  if (eqError && wfError) return { severity: 'unavailable', metric: null };
+  const eqDegraded = earthquakes.status === 'error';
+  // success + non-null error = partial (one wildfire source failed)
+  const wfDegraded =
+    wildfires.status === 'error' || (wildfires.status === 'success' && wildfires.error !== null);
+  const eqPending = earthquakes.status === 'idle' || earthquakes.status === 'loading';
+  const wfPending = wildfires.status === 'idle' || wildfires.status === 'loading';
+  // Fail-closed extension to flood: a flood source that errored/loaded where
+  // flood is APPLICABLE could hide a real river hazard, so it degrades the chip
+  // like eq/wf. not-applicable (no river within 5km) keeps flood fully out.
+  const floodDegraded = !floodNotApplicable && flood.status === 'error';
+  const floodPending =
+    !floodNotApplicable && (flood.status === 'idle' || flood.status === 'loading');
+  const anyDegraded = eqDegraded || wfDegraded || floodDegraded;
+  const anyPending = eqPending || wfPending || floodPending;
 
-  const eqLoading = earthquakes.status === 'idle' || earthquakes.status === 'loading';
-  const wfLoading = wildfires.status === 'idle' || wildfires.status === 'loading';
-  if (eqLoading && earthquakes.data === null && wfLoading && wildfires.data === null) {
-    return { severity: 'unavailable', metric: null };
-  }
+  if (eqDegraded && wfDegraded) return { severity: 'unavailable', metric: null };
 
   // Assess earthquake severity directly
   const MS_YEAR = 365 * 24 * 3600 * 1000;
@@ -102,8 +110,9 @@ export function deriveHazardsSeverity(
   const recentWf = wfData.filter((w) => now - new Date(w.date).getTime() < MS_YEAR);
   if (recentWf.length > 0) {
     const nearest = recentWf.reduce((a, b) => (a.distanceKm < b.distanceKm ? a : b));
-    if (nearest.distanceKm < 30) hasCriticalWf = true;
-    else hasWatchWf = true;
+    if (nearest.distanceKm < FIRE_ALERT_KM) hasCriticalWf = true;
+    else if (nearest.distanceKm < FIRE_WATCH_KM) hasWatchWf = true;
+    // beyond FIRE_WATCH_KM: recent-but-distant fires no longer inflate the chip
   }
 
   // Compute EQ/wildfire base severity rank (ok=0, watch=1, alert=2)
@@ -123,6 +132,13 @@ export function deriveHazardsSeverity(
   }
 
   const finalRank = Math.max(baseRank, floodRank);
+
+  // Honesty rule: a missing/failed source can HIDE hazards but not create
+  // them. Positive findings from live sources always surface; a clean result
+  // is only trustworthy when every source actually reported.
+  if (finalRank === 0 && (anyDegraded || anyPending)) {
+    return { severity: 'unavailable', metric: null };
+  }
   const RANK_TO_SEVERITY: Record<number, [OverviewSeverity, string]> = {
     0: ['ok', 'LOW'],
     1: ['watch', 'MOD'],
@@ -136,11 +152,15 @@ export function deriveAirSeverity(state: ModuleState<AqiSample[]>): SeverityResu
   if (state.status !== 'success' || state.data === null || state.data.length === 0) {
     return { severity: 'unavailable', metric: null };
   }
-  const mean = state.data.reduce((s, d) => s + d.pm25, 0) / state.data.length;
+  const values = state.data
+    .map((d) => d.pm25)
+    .filter((v): v is number => v !== null && Number.isFinite(v));
+  if (values.length === 0) return { severity: 'unavailable', metric: null };
+  const mean = values.reduce((s, v) => s + v, 0) / values.length;
   const metric = `${mean.toFixed(1)}`;
   let severity: OverviewSeverity;
-  if (mean > 15) severity = 'alert';
-  else if (mean >= 5) severity = 'watch';
+  if (mean > PM25_ALERT) severity = 'alert';
+  else if (mean >= PM25_WATCH) severity = 'watch';
   else severity = 'ok';
   return { severity, metric, unit: 'ug/m3' };
 }

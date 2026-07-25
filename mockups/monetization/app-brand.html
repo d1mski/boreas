@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boreas — Brand settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#FAF8F3; --surface:#FFFFFF; --ink:#16201E; --muted:#5B6B66;
+ --line:#E7E1D6; --green:#16615A; --clay:#A84E27; --good:#1F7A4D; --warn:#9A5B00;
+ --radius:12px; --shadow:0 1px 2px rgba(22,32,30,.04),0 8px 24px rgba(22,32,30,.06);
+ --teal:#0E5A57;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,sans-serif;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased}
+body{padding-top:64px}
+.fr{font-family:"Fraunces",Georgia,serif}
+
+/* ===== TOP BAR ===== */
+.topbar{position:fixed;top:0;left:0;right:0;height:64px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 32px;z-index:50}
+.tb-left{display:flex;align-items:center;gap:18px}
+.wordmark{font-family:"Fraunces",serif;font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-0.02em}
+.wordmark .dot{color:var(--clay)}
+.tb-divider{width:1px;height:26px;background:var(--line)}
+.loc-pill{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:14px;color:var(--ink)}
+.loc-pill svg{flex:none}
+.tb-right{display:flex;align-items:center;gap:26px}
+.nav-link{font-size:14px;color:var(--muted);text-decoration:none;font-weight:500;padding:4px 0;position:relative}
+.nav-link:hover{color:var(--ink)}
+.nav-link.active{color:var(--green)}
+.nav-link.active::after{content:"";position:absolute;left:0;right:0;bottom:-21px;height:2px;background:var(--green);border-radius:2px}
+.avatar{width:32px;height:32px;border-radius:50%;background:rgba(22,97,90,.12);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;letter-spacing:0}
+
+/* ===== PAGE ===== */
+.page{max-width:1080px;margin:0 auto;padding:44px 32px 80px}
+.page-head{margin-bottom:30px}
+.page-head h1{font-size:30px;font-weight:600;letter-spacing:-0.025em;line-height:1.1}
+.page-head p{margin-top:9px;font-size:15px;color:var(--muted);max-width:520px}
+
+.layout{display:grid;grid-template-columns:minmax(0,55fr) minmax(0,45fr);gap:28px;align-items:start}
+
+/* ===== FORM CARD ===== */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.form-card{padding:28px}
+.field{margin-bottom:22px}
+.field:last-child{margin-bottom:0}
+.field-label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px;letter-spacing:-0.005em}
+.field-hint{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.4}
+
+.section-sep{height:1px;background:var(--line);margin:26px 0}
+
+/* logo dropzone */
+.dropzone{border:1.5px dashed var(--line);border-radius:10px;padding:18px;display:flex;align-items:center;gap:16px;background:#FCFBF7}
+.logo-thumb{width:140px;height:60px;background:var(--surface);border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none}
+.logo-thumb span{font-family:"Fraunces",serif;font-weight:600;font-size:13.5px;color:var(--teal);letter-spacing:0.02em;text-align:center;line-height:1.15}
+.dz-meta{display:flex;flex-direction:column;gap:5px}
+.dz-name{font-size:13.5px;font-weight:500;color:var(--ink)}
+.dz-sub{font-size:12px;color:var(--muted)}
+.dz-actions{display:flex;gap:14px;margin-top:4px}
+.linkbtn{background:none;border:none;font-family:inherit;font-size:13px;font-weight:600;color:var(--green);cursor:pointer;padding:0;letter-spacing:-0.005em}
+.linkbtn.danger{color:var(--clay)}
+.linkbtn:hover{text-decoration:underline}
+
+/* colour field */
+.colour-row{display:flex;align-items:center;gap:12px}
+.colour-field{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:9px;padding:8px 12px;background:var(--surface);flex:1}
+.swatch{width:30px;height:30px;border-radius:7px;flex:none;border:1px solid rgba(0,0,0,.08)}
+.hexval{font-size:14px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.presets{display:flex;gap:8px}
+.preset{width:26px;height:26px;border-radius:6px;cursor:pointer;border:1px solid rgba(0,0,0,.08);position:relative}
+.preset.sel{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--green)}
+
+/* inputs */
+.input{width:100%;font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px 13px;letter-spacing:-0.005em;transition:border-color .12s,box-shadow .12s}
+.input::placeholder{color:#9aa6a2}
+.input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(22,97,90,.15)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* saved confirmation */
+.saved{display:flex;align-items:center;gap:8px;margin-top:24px;font-size:13px;font-weight:500;color:var(--good)}
+.saved svg{flex:none}
+
+/* ===== PREVIEW ===== */
+.preview-col{position:sticky;top:88px}
+.preview-cap{font-size:12.5px;color:var(--muted);margin-top:12px;display:flex;align-items:center;gap:7px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--good);flex:none}
+
+.report{padding:38px 36px 34px;overflow:hidden}
+.rep-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.rep-brand{font-family:"Fraunces",serif;font-weight:600;font-size:21px;color:var(--teal);letter-spacing:0.06em}
+.rep-tagline{font-size:11px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-top:6px;font-weight:500}
+.rep-doctype{text-align:right;font-size:10.5px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;font-weight:600;line-height:1.5}
+.rep-rule{height:2px;background:var(--teal);margin:22px 0 0;border-radius:2px}
+.rep-rule.thin{height:1px;background:var(--line);margin:24px 0 18px}
+.rep-place-lab{font-size:11px;color:var(--muted);letter-spacing:0.16em;text-transform:uppercase;font-weight:600;margin-top:26px}
+.rep-place{font-family:"Fraunces",serif;font-weight:500;font-size:48px;color:var(--ink);letter-spacing:-0.03em;line-height:1;margin-top:7px}
+.rep-place-sub{font-size:13px;color:var(--muted);margin-top:11px;letter-spacing:-0.005em}
+.rep-contact{display:flex;flex-wrap:wrap;gap:7px 26px;margin-top:8px}
+.rc-item{display:flex;flex-direction:column;gap:2px}
+.rc-lab{font-size:9.5px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-weight:600}
+.rc-val{font-size:12.5px;color:var(--ink);font-weight:500;letter-spacing:-0.005em}
+.rep-agent{font-family:"Fraunces",serif;font-size:14px;color:var(--teal);font-weight:600;letter-spacing:-0.005em}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+ <div class="tb-left">
+  <span class="wordmark">Boreas<span class="dot">.</span></span>
+  <span class="tb-divider"></span>
+  <span class="loc-pill">
+   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" stroke="#16615A" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.4" stroke="#16615A" stroke-width="1.8"/></svg>
+   St Ives, Cornwall · TR26
+  </span>
+ </div>
+ <nav class="tb-right">
+  <a class="nav-link" href="#">Reports</a>
+  <a class="nav-link active" href="#">Branding</a>
+  <span class="avatar">DS</span>
+ </nav>
+</header>
+
+<main class="page">
+ <div class="page-head">
+  <h1 class="fr">Your agency branding</h1>
+  <p>Applied to every report you generate. Set it once.</p>
+ </div>
+
+ <div class="layout">
+
+  <!-- LEFT: FORM -->
+  <section class="card form-card">
+
+   <div class="field">
+    <label class="field-label">Agency logo</label>
+    <div class="dropzone">
+     <div class="logo-thumb"><span>HARBOUR<br>&amp; STONE</span></div>
+     <div class="dz-meta">
+      <span class="dz-name">harbour-stone-logo.svg</span>
+      <span class="dz-sub">SVG · 24 KB · uploaded</span>
+      <div class="dz-actions">
+       <button class="linkbtn">Replace</button>
+       <button class="linkbtn danger">Remove</button>
+      </div>
+     </div>
+    </div>
+    <p class="field-hint">PNG or SVG, transparent background works best. Appears on every report cover.</p>
+   </div>
+
+   <div class="field">
+    <label class="field-label">Brand colour</label>
+    <div class="colour-row">
+     <div class="colour-field">
+      <span class="swatch" style="background:var(--teal)"></span>
+      <span class="hexval">#0E5A57</span>
+     </div>
+     <div class="presets">
+      <span class="preset sel" style="background:#0E5A57" title="#0E5A57"></span>
+      <span class="preset" style="background:#1B3A5B" title="#1B3A5B"></span>
+      <span class="preset" style="background:#7A2E2E" title="#7A2E2E"></span>
+      <span class="preset" style="background:#3F5130" title="#3F5130"></span>
+      <span class="preset" style="background:#5A3D6B" title="#5A3D6B"></span>
+      <span class="preset" style="background:#1F1F1F" title="#1F1F1F"></span>
+     </div>
+    </div>
+    <p class="field-hint">Used for headings, rules and accents in your reports.</p>
+   </div>
+
+   <div class="section-sep"></div>
+
+   <div class="field-row">
+    <div class="field">
+     <label class="field-label" for="f-agency">Agency name</label>
+     <input class="input" id="f-agency" type="text" value="Harbour &amp; Stone">
+    </div>
+    <div class="field">
+     <label class="field-label" for="f-tag">Tagline</label>
+     <input class="input" id="f-tag" type="text" value="Fine Coastal Homes">
+    </div>
+   </div>
+
+   <div class="field-row">
+    <div class="field">
+     <label class="field-label" for="f-agent">Agent name</label>
+     <input class="input" id="f-agent" type="text" value="Daniel Stone">
+    </div>
+    <div class="field">
+     <label class="field-label" for="f-phone">Phone</label>
+     <input class="input" id="f-phone" type="tel" value="01736 555 014">
+    </div>
+   </div>
+
+   <div class="field">
+    <label class="field-label" for="f-email">Email</label>
+    <input class="input" id="f-email" type="email" value="daniel@harbourandstone.co.uk">
+   </div>
+
+   <div class="field">
+    <label class="field-label" for="f-web">Website</label>
+    <input class="input" id="f-web" type="text" value="harbourandstone.co.uk">
+   </div>
+
+   <div class="saved">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#1F7A4D" stroke-width="1.8"/><path d="M8 12.2l2.6 2.6L16 9.4" stroke="#1F7A4D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Saved automatically
+   </div>
+
+  </section>
+
+  <!-- RIGHT: PREVIEW -->
+  <aside class="preview-col">
+   <div class="card report">
+    <div class="rep-top">
+     <div>
+      <div class="rep-brand">HARBOUR &amp; STONE</div>
+      <div class="rep-tagline">Fine Coastal Homes · Cornwall</div>
+     </div>
+     <div class="rep-doctype">Location<br>Report</div>
+    </div>
+    <div class="rep-rule"></div>
+
+    <div class="rep-place-lab">Property location</div>
+    <div class="rep-place fr">St Ives</div>
+    <div class="rep-place-sub">Cornwall · TR26 · Prepared June 2026</div>
+
+    <div class="rep-rule thin"></div>
+
+    <div class="rep-contact">
+     <div class="rc-item" style="flex-basis:100%">
+      <span class="rc-lab">Your agent</span>
+      <span class="rep-agent">Daniel Stone</span>
+     </div>
+     <div class="rc-item">
+      <span class="rc-lab">Phone</span>
+      <span class="rc-val">01736 555 014</span>
+     </div>
+     <div class="rc-item">
+      <span class="rc-lab">Email</span>
+      <span class="rc-val">daniel@harbourandstone.co.uk</span>
+     </div>
+     <div class="rc-item">
+      <span class="rc-lab">Website</span>
+      <span class="rc-val">harbourandstone.co.uk</span>
+     </div>
+    </div>
+   </div>
+   <p class="preview-cap"><span class="live-dot"></span>Live preview — this is what your clients see.</p>
+  </aside>
+
+ </div>
+</main>
+
+</body>
+</html>

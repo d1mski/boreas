@@ -88,6 +88,15 @@ export function RiskPanel({ coords }: Props) {
     wildfires.status === 'loading' ||
     aqi.status === 'loading';
 
+  const anyFailed =
+    climate.status === 'error' ||
+    features.status === 'error' ||
+    earthquakes.status === 'error' ||
+    aqi.status === 'error' ||
+    wildfires.status === 'error' ||
+    (wildfires.status === 'success' && wildfires.error !== null) ||
+    wiki.status === 'error';
+
   if (!coords) return null;
 
   return (
@@ -110,34 +119,45 @@ export function RiskPanel({ coords }: Props) {
       <div className="overflow-y-auto">
         {risks.length === 0 ? (
           <div className="px-3 py-3 text-[10px] font-mono uppercase tracking-wider text-dim">
-            {anyLoading ? '▸ SCANNING…' : '▸ NO FLAGS · AREA CLEAR'}
+            {anyLoading
+              ? '▸ SCANNING…'
+              : anyFailed
+                ? '▸ PARTIAL DATA · SOME SOURCES UNAVAILABLE'
+                : '▸ NO FLAGS · AREA CLEAR'}
           </div>
         ) : (
-          <div className="divide-y divide-edge/60">
-            {risks.map((r) => {
-              const s = SEVERITY_STYLE[r.severity];
-              return (
-                <div
-                  key={r.id}
-                  className={`px-3 py-2 ${s.bg} border-l-2 ${s.border}`}
-                >
-                  <div className="flex items-baseline gap-2 mb-0.5">
-                    <span
-                      className={`text-[8px] font-mono font-bold uppercase tracking-widest ${s.text}`}
-                    >
-                      {s.label}
-                    </span>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-ink">
-                      {r.title}
-                    </span>
+          <>
+            <div className="divide-y divide-edge/60">
+              {risks.map((r) => {
+                const s = SEVERITY_STYLE[r.severity];
+                return (
+                  <div
+                    key={r.id}
+                    className={`px-3 py-2 ${s.bg} border-l-2 ${s.border}`}
+                  >
+                    <div className="flex items-baseline gap-2 mb-0.5">
+                      <span
+                        className={`text-[8px] font-mono font-bold uppercase tracking-widest ${s.text}`}
+                      >
+                        {s.label}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-ink">
+                        {r.title}
+                      </span>
+                    </div>
+                    <div className="text-[10px] font-mono text-muted leading-snug">
+                      {r.detail}
+                    </div>
                   </div>
-                  <div className="text-[10px] font-mono text-muted leading-snug">
-                    {r.detail}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+            {anyFailed && (
+              <div className="px-3 py-1.5 text-[8px] font-mono uppercase tracking-widest text-warn border-t border-edge/60">
+                PARTIAL DATA · SOME SOURCES UNAVAILABLE
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

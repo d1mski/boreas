@@ -18,6 +18,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('Module error:', error, info);
+    if (import.meta.env.VITE_SENTRY_DSN) {
+      void import('@sentry/react').then((S) => S.captureException(error));
+    }
   }
 
   reset = () => {

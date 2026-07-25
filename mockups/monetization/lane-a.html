@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>St Ives · Location Report — Harbour &amp; Stone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF8;
+    --ink:#1C1C1A;          /* body, ~14:1 on paper */
+    --ink-soft:#4A4A46;     /* secondary, ~8:1 */
+    --hair:#D9D9D4;
+    --hair-soft:#E6E6E1;
+    --accent:#0E5A57;       /* deep teal */
+    --accent-deep:#0A413F;
+    --backdrop:#E8E8E6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--backdrop);}
+  body{
+    font-family:'Inter',-apple-system,sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    display:flex;flex-direction:column;align-items:center;
+    gap:24px;padding:24px;
+  }
+  .page{
+    position:relative;
+    width:210mm;height:297mm;
+    background:var(--paper);
+    box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 50px rgba(0,0,0,.14);
+    overflow:hidden;
+  }
+
+  /* ---------- shared type ---------- */
+  .serif{font-family:'Fraunces',Georgia,serif;}
+  .label{
+    font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:500;
+  }
+  .hair{height:1px;background:var(--hair);border:0;}
+
+  /* ---------- PAGE 1 — COVER ---------- */
+  .cover{padding:24mm 22mm 18mm;display:flex;flex-direction:column;height:100%;}
+  .wordmark{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .wordmark .mark{
+    font-size:25px;letter-spacing:.30em;font-weight:500;
+    color:var(--accent-deep);text-transform:uppercase;
+    padding-right:.30em; /* optical centering of tracking */
+  }
+  .wordmark .tagline{
+    margin-top:9px;font-size:10px;letter-spacing:.04em;color:var(--ink-soft);
+  }
+  .wordmark .tagline::before,.wordmark .tagline::after{
+    content:"";display:inline-block;width:26px;height:1px;
+    background:var(--hair);vertical-align:middle;margin:0 12px;
+  }
+
+  .hero-title{margin-top:auto;}
+  .hero-title .kicker{
+    font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:14px;
+  }
+  .hero-title h1{
+    font-family:'Fraunces',serif;font-weight:400;
+    font-size:92px;line-height:.94;letter-spacing:-.045em;
+    color:var(--ink);
+  }
+  .hero-title .sub{
+    margin-top:16px;font-size:14px;letter-spacing:.02em;color:var(--ink-soft);
+  }
+
+  .hero-band{position:relative;height:200px;margin:26px 0 0;}
+  .hero-band svg{display:block;width:100%;height:100%;}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    column-gap:0;margin-top:auto;padding-top:26px;
+    border-top:1px solid var(--hair);
+  }
+  .stat{padding:0 16px;border-left:1px solid var(--hair-soft);}
+  .stat:first-child{padding-left:0;border-left:0;}
+  .stat:last-child{padding-right:0;}
+  .stat .s-label{
+    font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:10px;
+  }
+  .stat .s-value{font-family:'Fraunces',serif;font-size:19px;font-weight:400;line-height:1.15;letter-spacing:-.01em;}
+  .stat .s-note{margin-top:6px;font-size:10.5px;color:var(--ink-soft);line-height:1.35;}
+
+  .cover-foot{
+    margin-top:22px;display:flex;justify-content:space-between;align-items:baseline;
+    font-size:9px;letter-spacing:.05em;color:var(--ink-soft);
+  }
+  .cover-foot .credit b{font-weight:600;color:var(--ink);}
+
+  /* ---------- PAGE 2 — CLIMATE ---------- */
+  .chapter{padding:22mm 22mm 16mm;display:flex;flex-direction:column;height:100%;}
+  .ch-head{display:flex;justify-content:space-between;align-items:baseline;}
+  .ch-head .ch-no{font-size:10px;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+  .ch-head .ch-loc{font-size:10px;letter-spacing:.04em;color:var(--ink-soft);}
+  .chapter h2{
+    font-family:'Fraunces',serif;font-weight:400;font-size:56px;
+    letter-spacing:-.04em;line-height:1;margin:14px 0 0;
+  }
+  .ch-summary{
+    margin-top:16px;font-family:'Fraunces',serif;font-weight:300;
+    font-size:17px;line-height:1.5;color:var(--ink-soft);
+    max-width:62ch;font-style:italic;
+  }
+
+  .chart-wrap{margin-top:26px;}
+  .chart-cap{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+  .chart-cap .c-title{font-size:11px;letter-spacing:.06em;font-weight:600;}
+  .legend{display:flex;gap:18px;align-items:center;}
+  .legend span{display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--ink-soft);}
+  .legend .sw{width:14px;height:0;border-top-width:2px;border-top-style:solid;}
+  .legend .sw.band{height:9px;border:0;background:rgba(14,90,87,.13);border-radius:1px;}
+
+  .figure svg{display:block;width:100%;}
+  .axis-t{font-family:'Inter';font-size:8.5px;fill:var(--ink-soft);}
+  .month-t{font-family:'Inter';font-size:9px;fill:var(--ink-soft);letter-spacing:.02em;}
+
+  .rain-block{margin-top:8px;}
+  .rain-cap{font-size:9.5px;color:var(--ink-soft);margin-bottom:7px;letter-spacing:.03em;}
+
+  .means{display:grid;grid-template-columns:1.25fr 1fr;gap:34px;margin-top:22px;align-items:start;}
+  .means-prose h3{font-family:'Fraunces',serif;font-weight:500;font-size:15px;margin-bottom:9px;letter-spacing:-.01em;}
+  .means-prose p{font-size:12px;line-height:1.62;color:var(--ink);max-width:68ch;}
+  .means-prose p + p{margin-top:10px;}
+
+  table.normals{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;}
+  table.normals caption{
+    text-align:left;font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:8px;
+  }
+  table.normals th,table.normals td{
+    padding:3.5px 0;font-size:10px;text-align:right;
+    border-bottom:1px solid var(--hair-soft);
+  }
+  table.normals th{color:var(--ink-soft);font-weight:600;letter-spacing:.04em;}
+  table.normals td:first-child,table.normals th:first-child{
+    text-align:left;font-weight:500;color:var(--ink);
+  }
+  table.normals thead th{border-bottom:1px solid var(--ink-soft);}
+  table.normals tr.peak td{color:var(--accent-deep);}
+
+  .chapter-foot{
+    margin-top:auto;padding-top:16px;border-top:1px solid var(--hair);
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:9px;letter-spacing:.05em;color:var(--ink-soft);
+  }
+  .chapter-foot .credit b{font-weight:600;color:var(--ink);}
+
+  @page{size:A4;margin:0;}
+  @media print{
+    body{background:#fff;padding:0;gap:0;}
+    .page{box-shadow:none;page-break-after:always;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 — COVER ============ -->
+<section class="page">
+  <div class="cover">
+
+    <div class="wordmark">
+      <div class="mark serif">Harbour &amp; Stone</div>
+      <div class="tagline">Fine Coastal Homes · Cornwall</div>
+    </div>
+
+    <div class="hero-title">
+      <div class="kicker">Location Report</div>
+      <h1>St Ives</h1>
+      <div class="sub">Cornwall, England · Postcode district TR26 · Elevation 82 m</div>
+    </div>
+
+    <!-- Hero band: hand-built concentric coastline contours -->
+    <div class="hero-band" aria-hidden="true">
+      <svg viewBox="0 0 720 200" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <clipPath id="band"><rect x="0" y="0" width="720" height="200"/></clipPath>
+        </defs>
+        <g clip-path="url(#band)" fill="none" stroke="#0E5A57">
+          <!-- nested coastline-like contours radiating from a headland -->
+          <g stroke-width="1">
+            <path d="M-40,176 C90,150 150,120 250,128 C360,137 410,96 520,104 C620,111 690,150 760,136" opacity=".10"/>
+            <path d="M-40,158 C100,132 168,102 262,112 C372,123 420,82 528,92 C626,101 694,134 760,120" opacity=".12"/>
+            <path d="M-40,140 C112,116 188,86 276,98 C384,111 432,70 538,82 C632,92 698,118 760,106" opacity=".15"/>
+            <path d="M-40,122 C124,100 206,72 290,86 C396,101 444,60 548,72 C638,82 702,104 760,94" opacity=".18"/>
+            <path d="M-40,104 C138,86 222,60 304,76 C408,93 456,52 558,64 C644,74 706,90 760,82" opacity=".22"/>
+            <path d="M-40,86 C152,72 238,50 318,68 C420,87 468,46 568,56 C650,66 710,78 760,72" opacity=".26"/>
+            <path d="M-40,68 C166,58 252,42 332,60 C432,80 480,40 578,50 C656,58 714,66 760,62" opacity=".30"/>
+            <path d="M-40,50 C180,46 266,36 346,54 C444,74 492,36 588,44 C660,50 718,56 760,54" opacity=".34"/>
+          </g>
+          <!-- headland marker -->
+          <circle cx="346" cy="92" r="3" fill="#0E5A57" stroke="none" opacity=".55"/>
+        </g>
+        <line x1="0" y1="199" x2="720" y2="199" stroke="#D9D9D4" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="s-label">Sunshine</div>
+        <div class="s-value serif">Among the sunniest<br>in the UK</div>
+        <div class="s-note">≈ 1,650 hrs / year</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">Air quality</div>
+        <div class="s-value serif">Clean coastal air</div>
+        <div class="s-note">European AQI 39 · Good</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">Temperature</div>
+        <div class="s-value serif">Mild year-round</div>
+        <div class="s-note">8–17 °C monthly mean</div>
+      </div>
+      <div class="stat">
+        <div class="s-label">Hazards</div>
+        <div class="s-value serif">Low exposure</div>
+        <div class="s-note">Negligible quake &amp; fire</div>
+      </div>
+    </div>
+
+    <div class="cover-foot">
+      <div>Prepared for the prospective resident · 2026</div>
+      <div class="credit">Location intelligence · data by <b>Boreas</b></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ PAGE 2 — CLIMATE ============ -->
+<section class="page">
+  <div class="chapter">
+
+    <div class="ch-head">
+      <span class="ch-no">Chapter 01</span>
+      <span class="ch-loc">St Ives · TR26</span>
+    </div>
+    <h2 class="serif">Climate</h2>
+    <p class="ch-summary serif">A mild, oceanic climate — a narrow temperature range, no extremes, and exceptional sunshine for Britain.</p>
+
+    <!-- ===== Temperature chart ===== -->
+    <div class="chart-wrap">
+      <div class="chart-cap">
+        <span class="c-title">Monthly temperature · °C</span>
+        <span class="legend">
+          <span><span class="sw band"></span>Daily range (max–min)</span>
+          <span><span class="sw" style="border-top-color:#0E5A57"></span>Mean</span>
+        </span>
+      </div>
+
+      <div class="figure" aria-label="Monthly temperature chart for St Ives">
+        <svg viewBox="0 0 720 330" preserveAspectRatio="xMidYMid meet">
+          <!-- gridlines -->
+          <g stroke="#E6E6E1" stroke-width="1">
+            <line x1="70" y1="63.6" x2="690" y2="63.6"/>
+            <line x1="70" y1="122.7" x2="690" y2="122.7"/>
+            <line x1="70" y1="181.8" x2="690" y2="181.8"/>
+            <line x1="70" y1="240.9" x2="690" y2="240.9"/>
+            <line x1="70" y1="300" x2="690" y2="300" stroke="#D9D9D4"/>
+          </g>
+          <!-- y axis labels -->
+          <g class="axis-t" text-anchor="end">
+            <text x="58" y="67.1">20°</text>
+            <text x="58" y="126.2">15°</text>
+            <text x="58" y="185.3">10°</text>
+            <text x="58" y="244.4">5°</text>
+            <text x="58" y="303.5">0°</text>
+          </g>
+
+          <!-- max–min band -->
+          <path d="M 70.0 181.8 L 126.4 181.8 L 182.7 170.0 L 239.1 146.4 L 295.5 110.9 L 351.8 87.3 L 408.2 63.6 L 464.5 63.6 L 520.9 87.3 L 577.3 122.7 L 633.6 158.2 L 690.0 181.8 L 690.0 217.3 L 633.6 205.5 L 577.3 170.0 L 520.9 146.4 L 464.5 134.5 L 408.2 134.5 L 351.8 158.2 L 295.5 193.6 L 239.1 217.3 L 182.7 229.1 L 126.4 240.9 L 70.0 229.1 Z"
+                fill="#0E5A57" fill-opacity=".11" stroke="none"/>
+
+          <!-- max + min hairlines -->
+          <polyline points="70.0,181.8 126.4,181.8 182.7,170.0 239.1,146.4 295.5,110.9 351.8,87.3 408.2,63.6 464.5,63.6 520.9,87.3 577.3,122.7 633.6,158.2 690.0,181.8"
+                    fill="none" stroke="#0E5A57" stroke-opacity=".35" stroke-width="1"/>
+          <polyline points="70.0,229.1 126.4,240.9 182.7,229.1 239.1,217.3 295.5,193.6 351.8,158.2 408.2,134.5 464.5,134.5 520.9,146.4 577.3,170.0 633.6,205.5 690.0,217.3"
+                    fill="none" stroke="#0E5A57" stroke-opacity=".35" stroke-width="1"/>
+
+          <!-- mean line -->
+          <polyline points="70.0,205.5 126.4,205.5 182.7,193.6 239.1,181.8 295.5,158.2 351.8,122.7 408.2,99.1 464.5,99.1 520.9,110.9 577.3,134.5 633.6,170.0 690.0,193.6"
+                    fill="none" stroke="#0E5A57" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+          <!-- mean nodes -->
+          <g fill="#FAFAF8" stroke="#0E5A57" stroke-width="1.5">
+            <circle cx="70.0" cy="205.5" r="2.4"/><circle cx="182.7" cy="193.6" r="2.4"/>
+            <circle cx="295.5" cy="158.2" r="2.4"/><circle cx="408.2" cy="99.1" r="2.4"/>
+            <circle cx="520.9" cy="110.9" r="2.4"/><circle cx="633.6" cy="170.0" r="2.4"/>
+          </g>
+
+          <!-- month labels -->
+          <g class="month-t" text-anchor="middle">
+            <text x="70.0" y="320">Jan</text><text x="126.4" y="320">Feb</text>
+            <text x="182.7" y="320">Mar</text><text x="239.1" y="320">Apr</text>
+            <text x="295.5" y="320">May</text><text x="351.8" y="320">Jun</text>
+            <text x="408.2" y="320">Jul</text><text x="464.5" y="320">Aug</text>
+            <text x="520.9" y="320">Sep</text><text x="577.3" y="320">Oct</text>
+            <text x="633.6" y="320">Nov</text><text x="690.0" y="320">Dec</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ===== Rainfall bars ===== -->
+      <div class="rain-block">
+        <div class="rain-cap">Monthly rainfall · mm &nbsp;·&nbsp; annual ≈ 1,010 mm</div>
+        <div class="figure" aria-label="Monthly rainfall chart for St Ives">
+          <svg viewBox="0 0 720 120" preserveAspectRatio="xMidYMid meet">
+            <line x1="70" y1="100" x2="690" y2="100" stroke="#D9D9D4" stroke-width="1"/>
+            <g fill="#0E5A57" fill-opacity=".55">
+              <rect x="63"  y="10.3" width="14" height="89.7"/>
+              <rect x="119.4" y="29.2" width="14" height="70.8"/>
+              <rect x="175.7" y="37.5" width="14" height="62.5"/>
+              <rect x="232.1" y="45.8" width="14" height="54.2"/>
+              <rect x="288.5" y="50.0" width="14" height="50.0"/>
+              <rect x="344.8" y="54.2" width="14" height="45.8"/>
+              <rect x="401.2" y="50.0" width="14" height="50.0"/>
+              <rect x="457.5" y="41.7" width="14" height="58.3"/>
+              <rect x="513.9" y="33.3" width="14" height="66.7"/>
+              <rect x="570.3" y="10.3" width="14" height="89.7"/>
+              <rect x="626.6" y="2.0"  width="14" height="98.0"/>
+              <rect x="683.0" y="2.0"  width="14" height="98.0"/>
+            </g>
+            <g class="month-t" text-anchor="middle" fill="#4A4A46">
+              <text x="70" y="115">J</text><text x="126.4" y="115">F</text>
+              <text x="182.7" y="115">M</text><text x="239.1" y="115">A</text>
+              <text x="295.5" y="115">M</text><text x="351.8" y="115">J</text>
+              <text x="408.2" y="115">J</text><text x="464.5" y="115">A</text>
+              <text x="520.9" y="115">S</text><text x="577.3" y="115">O</text>
+              <text x="633.6" y="115">N</text><text x="690" y="115">D</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Prose + table ===== -->
+    <div class="means">
+      <div class="means-prose">
+        <h3>What this means for you</h3>
+        <p>This is a climate built for living outdoors. Summers stay comfortable rather than hot — peaking around 20 °C — while winters rarely turn truly cold, with means holding near 8–9 °C and frost an occasional guest rather than a season.</p>
+        <p>The narrow annual swing keeps gardens green and growing for much of the year, and the long Atlantic light gives St Ives some of the brightest skies in Britain. Expect wetter, breezier spells from late autumn through winter — and unusually gentle, golden conditions the rest of the year.</p>
+      </div>
+
+      <table class="normals">
+        <caption>Monthly normals</caption>
+        <thead>
+          <tr><th>Month</th><th>Mean</th><th>Max</th><th>Min</th><th>Rain</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Jan</td><td>8°</td><td>10°</td><td>6°</td><td>110</td></tr>
+          <tr><td>Feb</td><td>8°</td><td>10°</td><td>5°</td><td>85</td></tr>
+          <tr><td>Mar</td><td>9°</td><td>11°</td><td>6°</td><td>75</td></tr>
+          <tr><td>Apr</td><td>10°</td><td>13°</td><td>7°</td><td>65</td></tr>
+          <tr><td>May</td><td>12°</td><td>16°</td><td>9°</td><td>60</td></tr>
+          <tr><td>Jun</td><td>15°</td><td>18°</td><td>12°</td><td>55</td></tr>
+          <tr class="peak"><td>Jul</td><td>17°</td><td>20°</td><td>14°</td><td>60</td></tr>
+          <tr class="peak"><td>Aug</td><td>17°</td><td>20°</td><td>14°</td><td>70</td></tr>
+          <tr><td>Sep</td><td>16°</td><td>18°</td><td>13°</td><td>80</td></tr>
+          <tr><td>Oct</td><td>14°</td><td>15°</td><td>11°</td><td>110</td></tr>
+          <tr><td>Nov</td><td>11°</td><td>12°</td><td>8°</td><td>120</td></tr>
+          <tr><td>Dec</td><td>9°</td><td>10°</td><td>7°</td><td>120</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chapter-foot">
+      <div class="credit">Location intelligence · data by <b>Boreas</b></div>
+      <div>Harbour &amp; Stone · St Ives Report &nbsp;—&nbsp; 02</div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

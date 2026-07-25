@@ -135,7 +135,7 @@ export function featureDivIcon(
     `display:flex;align-items:center;justify-content:center;opacity:${dim ? 0.6 : 1};` +
     `box-shadow:0 0 0 1.5px rgba(255,255,255,.75),0 1px 2px rgba(0,0,0,.6)">${glyph}</div>`;
   const icon = L.divIcon({
-    className: 'settl-feature-pin',
+    className: 'boreas-feature-pin',
     html,
     iconSize: [20, 20],
     iconAnchor: [10, 10],

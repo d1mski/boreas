@@ -10,6 +10,7 @@ import {
 import type { Coordinates, TabId } from '../../types';
 import { iconA, iconB } from '../../utils/mapIcons';
 import { fetchIpLocation } from '../../utils/ipLocation';
+import { escapeHtml, safeHttpsUrl } from '../../utils/escapeHtml';
 import { ContextMapLayer } from './layers/ContextMapLayer';
 import { HazardsMapLayer } from './layers/HazardsMapLayer';
 import { ClimateCellLayer } from './layers/ClimateCellLayer';
@@ -105,21 +106,30 @@ function FlyToListener() {
   useEffect(() => {
     const handler = (e: Event) => {
       const { lat, lon, title, url } = (e as CustomEvent).detail;
+      if (typeof lat !== 'number' || typeof lon !== 'number') {
+        // Silent in prod (a bad event should not break the map), loud in dev —
+        // otherwise a mistyped dispatch just makes fly-to quietly do nothing.
+        if (import.meta.env.DEV) {
+          console.warn('boreas-flyto: ignoring event with non-numeric coords', { lat, lon });
+        }
+        return;
+      }
       map.flyTo([lat, lon], Math.max(map.getZoom(), 16));
-      if (title) {
-        const link = url
-          ? `<br/><a href="${url}" target="_blank" rel="noopener noreferrer" style="color:rgb(126,234,255);font-size:10px">Open Wikipedia &rarr;</a>`
+      if (typeof title === 'string' && title) {
+        const safeUrl = safeHttpsUrl(url);
+        const link = safeUrl
+          ? `<br/><a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="color:rgb(126,234,255);font-size:10px">Open Wikipedia &rarr;</a>`
           : '';
         setTimeout(() => {
           map.openPopup(
-            `<div style="font-family:'JetBrains Mono',monospace;font-size:11px"><strong>${title}</strong>${link}</div>`,
+            `<div style="font-family:'JetBrains Mono',monospace;font-size:11px"><strong>${escapeHtml(title)}</strong>${link}</div>`,
             [lat, lon],
           );
         }, 700);
       }
     };
-    window.addEventListener('settl-flyto', handler);
-    return () => window.removeEventListener('settl-flyto', handler);
+    window.addEventListener('boreas-flyto', handler);
+    return () => window.removeEventListener('boreas-flyto', handler);
   }, [map]);
   return null;
 }

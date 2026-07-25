@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Boreas — Confirm your report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FAF8F3; --surface:#FFFFFF; --ink:#16201E; --muted:#5B6B66;
+    --line:#E7E1D6; --green:#16615A; --clay:#A84E27; --good:#1F7A4D; --warn:#9A5B00;
+    --radius:12px; --shadow:0 1px 2px rgba(22,32,30,.04),0 8px 24px rgba(22,32,30,.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Inter",-apple-system,system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    letter-spacing:-0.011em;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:fixed; top:0; left:0; right:0; height:64px; z-index:20;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 28px;
+  }
+  .topbar-left{display:flex; align-items:center; gap:16px;}
+  .wordmark{
+    font-family:"Fraunces",serif; font-weight:600; font-size:22px;
+    color:var(--ink); letter-spacing:-0.02em; line-height:1;
+  }
+  .wordmark .dot{color:var(--clay);}
+  .v-divider{width:1px; height:26px; background:var(--line);}
+  .loc-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:999px; padding:7px 13px;
+    font-size:14px; color:var(--ink);
+  }
+  .loc-pill svg{display:block; flex:none;}
+  .topbar-right{display:flex; align-items:center; gap:24px;}
+  .nav-link{
+    font-size:14px; font-weight:500; color:var(--muted);
+    text-decoration:none; position:relative; padding-bottom:3px;
+  }
+  .nav-link.active{color:var(--green);}
+  .nav-link.active::after{
+    content:""; position:absolute; left:0; right:0; bottom:-2px;
+    height:2px; background:var(--green); border-radius:2px;
+  }
+  .nav-dim{opacity:.55;}
+  .avatar{
+    width:32px; height:32px; border-radius:50%;
+    background:rgba(22,97,90,.12); color:var(--green);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:600; letter-spacing:0;
+  }
+  /* ---------- LAYOUT ---------- */
+  .page{
+    max-width:920px; margin:0 auto; padding:104px 24px 72px;
+  }
+  .back-link{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:14px; font-weight:500; color:var(--green);
+    text-decoration:none; margin-bottom:20px;
+  }
+  .back-link:hover{text-decoration:underline;}
+  h1.page-title{
+    font-family:"Fraunces",serif; font-weight:600; font-size:28px;
+    letter-spacing:-0.025em; margin:0 0 4px; color:var(--ink);
+  }
+  .page-sub{font-size:14.5px; color:var(--muted); margin:0 0 28px;}
+  .grid{
+    display:grid; grid-template-columns:minmax(0,48fr) minmax(0,52fr);
+    gap:24px; align-items:start;
+  }
+  .card{
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius); box-shadow:var(--shadow);
+  }
+  /* ---------- LEFT: ORDER SUMMARY ---------- */
+  .summary{padding:22px;}
+  .summary-eyebrow{
+    font-size:13px; font-weight:600; color:var(--muted); margin:0 0 14px;
+  }
+  /* mini report cover */
+  .report-mini{
+    border:1px solid var(--line); border-radius:10px;
+    background:#FCFBF7; padding:18px 18px 20px; margin-bottom:20px;
+    display:flex; gap:16px; align-items:stretch;
+  }
+  .report-cover{
+    width:108px; flex:none; background:var(--surface);
+    border:1px solid var(--line); border-radius:6px;
+    padding:14px 12px; display:flex; flex-direction:column; gap:9px;
+    box-shadow:0 1px 2px rgba(22,32,30,.05);
+  }
+  .rc-brand{
+    font-family:"Fraunces",serif; font-weight:600; font-size:11px;
+    color:#0E5A57; letter-spacing:0.01em; line-height:1.15;
+  }
+  .rc-rule{height:1.5px; background:#0E5A57; width:34px; border-radius:2px;}
+  .rc-town{
+    font-family:"Fraunces",serif; font-weight:500; font-size:19px;
+    color:var(--ink); letter-spacing:-0.02em; margin-top:2px; line-height:1;
+  }
+  .rc-meta{font-size:8.5px; color:var(--muted); line-height:1.4; margin-top:auto;}
+  .rc-lines{display:flex; flex-direction:column; gap:4px; margin-top:6px;}
+  .rc-lines span{height:3px; border-radius:2px; background:var(--line);}
+  .rc-lines span:nth-child(1){width:100%;}
+  .rc-lines span:nth-child(2){width:78%;}
+  .rc-lines span:nth-child(3){width:88%;}
+  .report-desc{display:flex; flex-direction:column; justify-content:center; gap:6px;}
+  .report-desc .rd-title{
+    font-family:"Fraunces",serif; font-weight:600; font-size:16px;
+    letter-spacing:-0.02em; color:var(--ink); line-height:1.25;
+  }
+  .report-desc .rd-sub{font-size:13px; color:var(--muted); line-height:1.45;}
+  .rd-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;}
+  .rd-tag{
+    font-size:11.5px; font-weight:500; color:var(--green);
+    background:rgba(22,97,90,.08); border-radius:5px; padding:3px 8px;
+  }
+  /* line items */
+  .lineitems{border-top:1px solid var(--line); padding-top:16px;}
+  .li-row{
+    display:flex; align-items:baseline; justify-content:space-between;
+    gap:12px; padding:7px 0;
+  }
+  .li-label{font-size:14px; color:var(--ink);}
+  .li-label .li-note{display:block; font-size:12.5px; color:var(--muted); margin-top:1px;}
+  .li-price{font-size:14px; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .upsell{
+    margin:6px 0 4px; padding:11px 13px;
+    background:rgba(22,97,90,.05); border:1px solid rgba(22,97,90,.18);
+    border-radius:8px; display:flex; align-items:center; gap:10px;
+  }
+  .upsell svg{flex:none;}
+  .upsell a{color:var(--green); font-weight:600; text-decoration:none; font-size:13.5px;}
+  .upsell a:hover{text-decoration:underline;}
+  .upsell .up-text{font-size:13px; color:var(--muted); line-height:1.4;}
+  .totals{border-top:1px solid var(--line); margin-top:14px; padding-top:14px;}
+  .tot-row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:14px; color:var(--muted); padding:4px 0;
+  }
+  .tot-row .tv{color:var(--ink); font-variant-numeric:tabular-nums;}
+  .tot-grand{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-top:8px; padding-top:12px; border-top:1px solid var(--line);
+  }
+  .tot-grand .tg-label{font-size:15px; font-weight:500; color:var(--ink);}
+  .tot-grand .tg-val{
+    font-family:"Fraunces",serif; font-weight:600; font-size:24px;
+    letter-spacing:-0.02em; color:var(--ink); font-variant-numeric:tabular-nums;
+  }
+  /* trust row */
+  .trust{
+    display:flex; gap:18px; margin-top:18px; padding-top:16px;
+    border-top:1px solid var(--line); flex-wrap:wrap;
+  }
+  .trust-item{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; color:var(--green);}
+  .trust-item svg{flex:none;}
+  /* ---------- RIGHT: PAYMENT ---------- */
+  .pay{padding:24px;}
+  .pay-h{
+    font-family:"Fraunces",serif; font-weight:600; font-size:18px;
+    letter-spacing:-0.02em; margin:0 0 18px; color:var(--ink);
+  }
+  .field{margin-bottom:15px;}
+  .field label{
+    display:block; font-size:12.5px; font-weight:600; color:var(--ink);
+    margin-bottom:6px; letter-spacing:0;
+  }
+  .input{
+    width:100%; border:1px solid var(--line); border-radius:9px;
+    background:var(--surface); padding:11px 13px;
+    font-family:"Inter",sans-serif; font-size:14.5px; color:var(--ink);
+    letter-spacing:-0.011em;
+  }
+  .input::placeholder{color:#9AA8A3;}
+  .input:focus{outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(22,97,90,.14);}
+  .input-wrap{position:relative;}
+  /* focused-state demo on card number */
+  .input.focused{border-color:var(--green); box-shadow:0 0 0 3px rgba(22,97,90,.14);}
+  .card-glyphs{
+    position:absolute; right:11px; top:50%; transform:translateY(-50%);
+    display:flex; gap:5px; align-items:center;
+  }
+  .card-glyphs .glyph{
+    width:30px; height:20px; border-radius:4px; border:1px solid var(--line);
+    background:var(--surface); display:flex; align-items:center; justify-content:center;
+  }
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .field-hint{font-size:11.5px; color:var(--muted); margin-top:5px;}
+  .stripe-line{
+    display:flex; align-items:center; gap:7px; justify-content:center;
+    font-size:12.5px; color:var(--muted); margin:20px 0 16px;
+  }
+  .stripe-line svg{flex:none;}
+  .pay-btn{
+    width:100%; background:var(--clay); color:#fff; border:none;
+    border-radius:10px; padding:15px 18px; cursor:pointer;
+    font-family:"Inter",sans-serif; font-size:15.5px; font-weight:600;
+    letter-spacing:-0.011em; display:flex; align-items:center; justify-content:center; gap:9px;
+    box-shadow:0 1px 2px rgba(22,32,30,.08), 0 6px 16px rgba(168,78,39,.22);
+    transition:background .15s ease;
+  }
+  .pay-btn:hover{background:#97461F;}
+  .pay-btn svg{flex:none;}
+  .pay-foot{font-size:13px; color:var(--muted); text-align:center; margin:12px 4px 0; line-height:1.5;}
+</style>
+</head>
+<body>
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="wordmark">Boreas<span class="dot">.</span></span>
+      <span class="v-divider"></span>
+      <span class="loc-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 21s7-5.686 7-11a7 7 0 1 0-14 0c0 5.314 7 11 7 11Z" stroke="#16615A" stroke-width="1.8" stroke-linejoin="round"/>
+          <circle cx="12" cy="10" r="2.4" stroke="#16615A" stroke-width="1.8"/>
+        </svg>
+        St Ives, Cornwall · TR26
+      </span>
+    </div>
+    <nav class="topbar-right">
+      <a class="nav-link active nav-dim" href="#">Reports</a>
+      <a class="nav-link nav-dim" href="#">Branding</a>
+      <span class="avatar">DS</span>
+    </nav>
+  </header>
+
+  <main class="page">
+    <a class="back-link" href="#">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" stroke="#16615A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to report
+    </a>
+    <h1 class="page-title">Confirm your report</h1>
+    <p class="page-sub">Review your order and pay securely. Your branded PDF generates the moment payment clears.</p>
+
+    <div class="grid">
+      <!-- LEFT: ORDER SUMMARY -->
+      <section class="card summary" aria-label="Order summary">
+        <p class="summary-eyebrow">Order summary</p>
+
+        <div class="report-mini">
+          <div class="report-cover" aria-hidden="true">
+            <div class="rc-brand">HARBOUR<br>&amp; STONE</div>
+            <div class="rc-rule"></div>
+            <div class="rc-town">St Ives</div>
+            <div class="rc-lines"><span></span><span></span><span></span></div>
+            <div class="rc-meta">LOCATION REPORT<br>Cornwall · TR26</div>
+          </div>
+          <div class="report-desc">
+            <div class="rd-title">St Ives location report</div>
+            <div class="rd-sub">Branded white-label PDF, ready to share with buyers.</div>
+            <div class="rd-tags">
+              <span class="rd-tag">28 pages</span>
+              <span class="rd-tag">Your branding</span>
+              <span class="rd-tag">No watermark</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lineitems">
+          <div class="li-row">
+            <span class="li-label">
+              St Ives location report
+              <span class="li-note">Single branded PDF · Harbour &amp; Stone</span>
+            </span>
+            <span class="li-price">£9.00</span>
+          </div>
+
+          <div class="upsell">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M13 2 4.5 13.5H11l-1 8.5 9-12.5h-6.5L13 2Z" stroke="#16615A" stroke-width="1.7" stroke-linejoin="round"/>
+            </svg>
+            <span class="up-text"><a href="#">Switch to Unlimited — £25/mo</a> and run as many reports as you list.</span>
+          </div>
+        </div>
+
+        <div class="totals">
+          <div class="tot-row"><span>Subtotal</span><span class="tv">£9.00</span></div>
+          <div class="tot-row"><span>VAT (20%)</span><span class="tv">£1.80</span></div>
+          <div class="tot-grand">
+            <span class="tg-label">Total due today</span>
+            <span class="tg-val">£10.80</span>
+          </div>
+        </div>
+
+        <div class="trust">
+          <span class="trust-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="#16615A" stroke-width="1.7"/>
+              <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="#16615A" stroke-width="1.7"/>
+            </svg>
+            Secure payment
+          </span>
+          <span class="trust-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 4v11m0 0 4-4m-4 4-4-4" stroke="#1F7A4D" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 19h14" stroke="#1F7A4D" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+            Instant download
+          </span>
+          <span class="trust-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 13l4 4L19 7" stroke="#1F7A4D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            No watermark
+          </span>
+        </div>
+      </section>
+
+      <!-- RIGHT: PAYMENT -->
+      <section class="card pay" aria-label="Payment details">
+        <h2 class="pay-h">Payment details</h2>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input class="input" id="email" type="email" value="daniel@harbourandstone.co.uk" autocomplete="email" />
+        </div>
+
+        <div class="field">
+          <label for="card">Card number</label>
+          <div class="input-wrap">
+            <input class="input focused" id="card" type="text" inputmode="numeric" placeholder="1234 1234 1234 1234" aria-describedby="card-hint" />
+            <span class="card-glyphs" aria-hidden="true">
+              <span class="glyph">
+                <svg width="22" height="14" viewBox="0 0 32 20" fill="none"><rect width="32" height="20" rx="2" fill="#1A1F71"/><path d="M13.2 13.4h-2l1.3-7.3h2l-1.3 7.3Zm6.6-7.1c-.4-.15-1-.3-1.8-.3-2 0-3.4 1-3.4 2.5 0 1.1 1 1.7 1.8 2 .8.4 1 .6 1 .9 0 .5-.6.7-1.1.7-.8 0-1.2-.1-1.8-.4l-.3-.1-.3 1.7c.5.2 1.3.4 2.2.4 2.1 0 3.5-1 3.5-2.6 0-.9-.5-1.5-1.7-2-.7-.4-1.1-.6-1.1-.9 0-.3.3-.6 1.1-.6.6 0 1.1.1 1.4.3l.2.1.3-1.6Z" fill="#fff"/></svg>
+              </span>
+              <span class="glyph">
+                <svg width="22" height="14" viewBox="0 0 32 20" fill="none"><rect width="32" height="20" rx="2" fill="#F4F4F4" stroke="#E7E1D6"/><circle cx="13" cy="10" r="5.5" fill="#EB001B"/><circle cx="19" cy="10" r="5.5" fill="#F79E1B" fill-opacity=".9"/></svg>
+              </span>
+            </span>
+          </div>
+          <p class="field-hint" id="card-hint">Demo form — no real card details are captured.</p>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="exp">Expiry</label>
+            <input class="input" id="exp" type="text" inputmode="numeric" placeholder="MM / YY" />
+          </div>
+          <div class="field">
+            <label for="cvc">CVC</label>
+            <input class="input" id="cvc" type="text" inputmode="numeric" placeholder="123" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="name">Name on card</label>
+          <input class="input" id="name" type="text" placeholder="Daniel Trevethan" autocomplete="cc-name" />
+        </div>
+
+        <div class="row-2">
+          <div class="field" style="margin-bottom:0;">
+            <label for="country">Country</label>
+            <input class="input" id="country" type="text" value="United Kingdom" />
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label for="postcode">Postcode</label>
+            <input class="input" id="postcode" type="text" placeholder="TR26 1AB" autocomplete="postal-code" />
+          </div>
+        </div>
+
+        <div class="stripe-line">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="#5B6B66" stroke-width="1.6"/>
+            <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="#5B6B66" stroke-width="1.6"/>
+          </svg>
+          Payments secured by Stripe · 256-bit encryption
+        </div>
+
+        <button class="pay-btn" type="button">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="#fff" stroke-width="1.7"/>
+            <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="#fff" stroke-width="1.7"/>
+          </svg>
+          Pay £10.80 &amp; generate report
+        </button>
+        <p class="pay-foot">Your PDF is ready in seconds. A copy is emailed to you.</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

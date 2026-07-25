@@ -1,8 +1,14 @@
-# settl. [Location Intelligence]
+# Boreas [Location Intelligence]
 
 Pin a location, see what it's actually like to live there. Climate, wind, sun, air quality, hazards, marine conditions, and what's nearby — plus live webcams. One to ten years of data on one screen. Free, no API keys for the core.
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
+
+> **Formerly `settl.`** — renamed to Boreas in 1.2.0. Links to the old
+> repository URL still resolve via GitHub's redirect. If you used the app
+> before the rename, your saved locations and settings migrate automatically on
+> first load; the deploy path moved to `/experiments/boreas/`. See the
+> [changelog](CHANGELOG.md#120--2026-07-25--truthfulness-pass) for detail.
 
 <img width="1792" height="1033" alt="image" src="https://github.com/user-attachments/assets/860aa7d3-859f-4b2c-bea3-652c468e1eb8" />
 
@@ -55,18 +61,18 @@ The app is organized into modules (six everywhere, plus a seventh — Marine —
 
 ### Other features
 
-There's an overview mode that summarizes all modules on one screen with severity indicators, so you can get the headline picture without drilling into each one. Compare mode lets you pin two locations and see their data side by side. Saved locations persist in your browser (IndexedDB) so you can come back to spots you're evaluating.
+There's an overview mode that summarizes all modules on one screen with severity indicators, so you can get the headline picture without drilling into each one. Compare mode lets you pin two locations and see their data side by side. Saved locations persist in your browser (localStorage; API responses are cached in IndexedDB) so you can come back to spots you're evaluating.
 
 ## Run it
 
 ```bash
-git clone https://github.com/d1mski/settl..git
-cd settl.
+git clone https://github.com/d1mski/boreas.git
+cd boreas
 npm install
 npm run dev
 ```
 
-No `.env` file and no API keys for the core app — everything hits free public endpoints. Live webcams are the one exception: they need a free [Windy](https://api.windy.com/keys) key in `VITE_WINDY_KEY`. Leave it unset and the rest of the app works unchanged; the webcams just don't appear.
+No `.env` file needed for the core app — everything hits free public endpoints. Copy [`.env.example`](.env.example) to `.env` to unlock optional extras: live webcams need a free [Windy](https://api.windy.com/keys) key (`VITE_WINDY_KEY`), and wildfire satellite detections need a free [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/api/) key (`VITE_FIRMS_MAP_KEY`). Leave any of them unset and the rest of the app works unchanged; that feature just doesn't appear.
 
 ## Built with
 
@@ -81,11 +87,15 @@ All free, no auth needed:
 - [Overpass](https://overpass-api.de/) for OpenStreetMap queries
 - [Wikipedia](https://www.mediawiki.org/wiki/API:Geosearch) for nearby articles
 - [USGS](https://earthquake.usgs.gov/fdsnws/event/1/) for earthquake data
-- [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) for wildfire detection
 
-Optional (needs a free key):
+Optional (needs a free key — see [`.env.example`](.env.example)):
 
 - [Windy Webcams](https://api.windy.com/keys) for nearby live webcams (`VITE_WINDY_KEY`)
+- [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/api/) for wildfire satellite detections (`VITE_FIRMS_MAP_KEY`)
+
+### Privacy
+
+Coordinates you pin are sent to the data providers listed above, plus [GeoJS](https://www.geojs.io/) (initial map centering from your IP) and [CARTO](https://carto.com/) (map tiles). Nothing is sent to any Boreas server — there isn't one.
 
 ## License
 

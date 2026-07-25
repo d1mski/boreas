@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>St Ives · Location Report — Harbour &amp; Stone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF8;
+    --ink:#1C1C1A;
+    --ink-soft:#4A4A46;
+    --hair:#D9D9D4;
+    --hair-soft:#E6E6E1;
+    --accent:#0E5A57;
+    --accent-deep:#0A413F;
+    --backdrop:#E8E8E6;
+    --track:#E7E1D6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--backdrop);}
+  body{
+    font-family:'Inter',-apple-system,sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    display:flex;flex-direction:column;align-items:center;
+    gap:24px;padding:24px;
+  }
+  .page{
+    position:relative;
+    width:210mm;height:297mm;
+    background:var(--paper);
+    box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 50px rgba(0,0,0,.14);
+    overflow:hidden;
+  }
+  .serif{font-family:'Fraunces',Georgia,serif;}
+
+  .cover{padding:26mm 24mm 16mm;display:flex;flex-direction:column;height:100%;}
+
+  /* ---------- masthead ---------- */
+  .wordmark{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .wordmark .mark{
+    font-size:25px;letter-spacing:.30em;font-weight:500;
+    color:var(--accent-deep);text-transform:uppercase;
+    padding-right:.30em;
+  }
+  .wordmark .tagline{
+    margin-top:9px;font-size:10px;letter-spacing:.04em;color:var(--ink-soft);
+  }
+  .wordmark .tagline::before,.wordmark .tagline::after{
+    content:"";display:inline-block;width:26px;height:1px;
+    background:var(--hair);vertical-align:middle;margin:0 12px;
+  }
+
+  /* ---------- hero title ---------- */
+  .hero-title{margin-top:30px;text-align:center;}
+  .hero-title .kicker{
+    font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:14px;
+  }
+  .hero-title h1{
+    font-family:'Fraunces',serif;font-weight:400;
+    font-size:92px;line-height:.92;letter-spacing:-.045em;
+    color:var(--ink);
+  }
+  .hero-title .sub{
+    margin-top:16px;font-size:13px;letter-spacing:.03em;color:var(--ink-soft);
+  }
+
+  .rule{height:1px;background:var(--hair);border:0;margin:30px 0 0;}
+
+  /* ---------- Liveability index — the hero ---------- */
+  .liv{margin-top:30px;}
+  .liv-cap{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:18px;
+  }
+  .liv-cap .t{font-family:'Fraunces',serif;font-weight:500;font-size:19px;letter-spacing:-.015em;color:var(--ink);}
+  .liv-cap .s{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:600;}
+
+  .liv-row{
+    display:grid;grid-template-columns:150px 1fr 156px;align-items:center;
+    column-gap:24px;padding:17px 0;border-bottom:1px solid var(--hair-soft);
+  }
+  .liv-row:first-of-type{border-top:1px solid var(--hair);}
+  .liv-label{font-size:14px;font-weight:500;color:var(--ink);letter-spacing:.005em;}
+  .liv-track{height:8px;background:var(--track);border-radius:4px;overflow:hidden;}
+  .liv-fill{display:block;height:100%;background:var(--accent);border-radius:4px;}
+  .liv-val{
+    font-family:'Fraunces',serif;font-size:14px;font-weight:500;
+    color:var(--accent-deep);text-align:right;letter-spacing:-.005em;
+  }
+
+  /* ---------- quiet supporting facts ---------- */
+  .facts{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    margin-top:30px;padding-top:20px;border-top:1px solid var(--hair);
+  }
+  .fact{padding:0 18px;border-left:1px solid var(--hair-soft);}
+  .fact:first-child{padding-left:0;border-left:0;}
+  .fact:last-child{padding-right:0;}
+  .fact .f-label{
+    font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:8px;
+  }
+  .fact .f-value{font-family:'Fraunces',serif;font-size:17px;font-weight:400;line-height:1.16;letter-spacing:-.01em;}
+  .fact .f-note{margin-top:5px;font-size:10px;color:var(--ink-soft);line-height:1.4;}
+
+  /* ---------- footer ---------- */
+  .cover-foot{
+    margin-top:auto;padding-top:16px;
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:9px;letter-spacing:.05em;color:var(--ink-soft);
+  }
+  .cover-foot .credit b{font-weight:600;color:var(--ink);}
+
+  @page{size:A4;margin:0;}
+  @media print{
+    body{background:#fff;padding:0;gap:0;}
+    .page{box-shadow:none;}
+  }
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="cover">
+
+    <div class="wordmark">
+      <div class="mark serif">Harbour &amp; Stone</div>
+      <div class="tagline">Fine Coastal Homes · Cornwall</div>
+    </div>
+
+    <div class="hero-title">
+      <div class="kicker">Location Report</div>
+      <h1>St Ives</h1>
+      <div class="sub">Cornwall, England · TR26 · Elevation 82 m · SW-facing Atlantic coast</div>
+    </div>
+
+    <hr class="rule">
+
+    <!-- ===== Liveability Index — the centrepiece ===== -->
+    <div class="liv">
+      <div class="liv-cap">
+        <span class="t">Liveability Index</span>
+        <span class="s">Favourability for living · fuller is better</span>
+      </div>
+
+      <div class="liv-row">
+        <span class="liv-label">Sunshine</span>
+        <span class="liv-track"><span class="liv-fill" style="width:100%"></span></span>
+        <span class="liv-val">Top-tier UK</span>
+      </div>
+      <div class="liv-row">
+        <span class="liv-label">Air quality</span>
+        <span class="liv-track"><span class="liv-fill" style="width:95%"></span></span>
+        <span class="liv-val">AQI 30 · Good</span>
+      </div>
+      <div class="liv-row">
+        <span class="liv-label">Climate</span>
+        <span class="liv-track"><span class="liv-fill" style="width:80%"></span></span>
+        <span class="liv-val">Mild · 8–16°C</span>
+      </div>
+      <div class="liv-row">
+        <span class="liv-label">Coastal exposure</span>
+        <span class="liv-track"><span class="liv-fill" style="width:60%"></span></span>
+        <span class="liv-val">Exposed Atlantic</span>
+      </div>
+      <div class="liv-row">
+        <span class="liv-label">Hazard exposure</span>
+        <span class="liv-track"><span class="liv-fill" style="width:90%"></span></span>
+        <span class="liv-val">Low</span>
+      </div>
+    </div>
+
+    <!-- ===== quiet supporting facts ===== -->
+    <div class="facts">
+      <div class="fact">
+        <div class="f-label">Sunshine</div>
+        <div class="f-value serif">~1,600 hrs / yr</div>
+        <div class="f-note">Among the brightest in Britain</div>
+      </div>
+      <div class="fact">
+        <div class="f-label">Fine particulate</div>
+        <div class="f-value serif">PM2.5 4.3 µg/m³</div>
+        <div class="f-note">Below the WHO guideline</div>
+      </div>
+      <div class="fact">
+        <div class="f-label">Summer sea</div>
+        <div class="f-value serif">Swimmable ~17°C</div>
+        <div class="f-note">Late-summer surface temp</div>
+      </div>
+      <div class="fact">
+        <div class="f-label">Rainfall</div>
+        <div class="f-value serif">1,071 mm / yr</div>
+        <div class="f-note">Mild, wetter Atlantic winters</div>
+      </div>
+    </div>
+
+    <div class="cover-foot">
+      <div>Prepared for the prospective resident · 2026</div>
+      <div class="credit">Location intelligence · data by <b>Boreas</b></div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

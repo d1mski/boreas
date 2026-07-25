@@ -236,12 +236,12 @@ export function ReportPanel({ coordsA, resolvedA, countryA, onDrillDown, climate
         ];
       } else {
         // 5/10y: archive has no UV \u2014 derive avgHigh/avgLow from monthly aggregates instead.
-        const monthly = buildMonthlyAggregates(climateDisplay.data!);
+        const monthly = buildMonthlyAggregates(climateDisplay.data!, climateYears);
         const avgHighVal = monthly.reduce((s, m) => s + m.avgHigh, 0) / monthly.length;
         const avgLowVal = monthly.reduce((s, m) => s + m.avgLow, 0) / monthly.length;
         climateMetrics = [
           { value: fmt(avg(dDisplay.temperatureMean), 1) + '\u00B0', label: `Mean temp${winSuffix}` },
-          { value: fmt(sum(dDisplay.precipitationSum), 0) + ' mm', label: `Total precip${winSuffix}` },
+          { value: fmt(sum(dDisplay.precipitationSum) / climateYears, 0) + ' mm', label: `Total precip${winSuffix}` },
           { value: fmt(avgHighVal, 1) + '\u00B0', label: `Avg high${winSuffix}` },
           { value: fmt(avgLowVal, 1) + '\u00B0', label: `Avg low${winSuffix}` },
         ];
@@ -296,10 +296,10 @@ export function ReportPanel({ coordsA, resolvedA, countryA, onDrillDown, climate
     /* Air Quality */
     const airMetrics: Metric[] = aqiData && aqiData.length > 0
       ? [
-          { value: fmt(avg(aqiData.map(s => s.pm25)), 1), label: 'PM2.5 mean' },
-          { value: fmt(avg(aqiData.map(s => s.pm10)), 1), label: 'PM10 mean' },
-          { value: fmt(avg(aqiData.map(s => s.no2)), 1), label: 'NO\u2082 mean' },
-          { value: fmt(avg(aqiData.map(s => s.o3)), 1), label: 'O\u2083 mean' },
+          { value: fmt(avg(aqiData.map(s => s.pm25).filter((v): v is number => v !== null)), 1), label: 'PM2.5 mean' },
+          { value: fmt(avg(aqiData.map(s => s.pm10).filter((v): v is number => v !== null)), 1), label: 'PM10 mean' },
+          { value: fmt(avg(aqiData.map(s => s.no2).filter((v): v is number => v !== null)), 1), label: 'NO\u2082 mean' },
+          { value: fmt(avg(aqiData.map(s => s.o3).filter((v): v is number => v !== null)), 1), label: 'O\u2083 mean' },
         ]
       : [
           { value: '--', label: 'PM2.5 mean' },

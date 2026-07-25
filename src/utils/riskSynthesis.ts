@@ -8,6 +8,7 @@ import type {
 } from '../types';
 import type { NearbyFeature } from '../hooks/useOverpassFeatures';
 import { buildWindRose, DIRECTION_LABELS } from './windRoseData';
+import { FIRE_ALERT_KM, FIRE_WATCH_KM, PM25_ALERT, PM25_WATCH, HEAT_DAY_C } from './severityThresholds';
 
 export type RiskSeverity = 'info' | 'watch' | 'warn' | 'critical';
 export type RiskCategory =
@@ -181,9 +182,9 @@ function wildfireRisk(
       id: 'wildfire-recent',
       category: 'wildfire',
       severity:
-        nearest.distanceKm < 10
+        nearest.distanceKm < FIRE_ALERT_KM
           ? 'warn'
-          : nearest.distanceKm < 30
+          : nearest.distanceKm < FIRE_WATCH_KM
             ? 'watch'
             : 'info',
       title: 'WILDFIRE ACTIVITY',
@@ -242,10 +243,10 @@ function airportNoiseRisk(features: NearbyFeature[]): Risk[] {
 
 function aqiRisk(aqi: AqiSample[]): Risk[] {
   if (aqi.length === 0) return [];
-  const pm25Values = aqi.map((s) => s.pm25).filter((v) => Number.isFinite(v));
+  const pm25Values = aqi.map((s) => s.pm25).filter((v): v is number => v !== null && Number.isFinite(v));
   if (pm25Values.length === 0) return [];
   const mean = pm25Values.reduce((a, b) => a + b, 0) / pm25Values.length;
-  const WHO_ANNUAL = 5;
+  const WHO_ANNUAL = PM25_WATCH;
   const EU_ANNUAL = 25;
   const ratio = mean / WHO_ANNUAL;
   if (ratio <= 1) return [];
@@ -253,7 +254,7 @@ function aqiRisk(aqi: AqiSample[]): Risk[] {
     {
       id: 'aqi-pm25',
       category: 'aqi',
-      severity: mean > EU_ANNUAL ? 'critical' : mean > 15 ? 'warn' : 'watch',
+      severity: mean > EU_ANNUAL ? 'critical' : mean > PM25_ALERT ? 'warn' : 'watch',
       title: 'PM2.5 ABOVE WHO GUIDELINE',
       detail: `Mean ${mean.toFixed(1)} µg/m³ · ${ratio.toFixed(1)}× WHO annual limit (${WHO_ANNUAL} µg/m³)`,
     },
@@ -263,7 +264,7 @@ function aqiRisk(aqi: AqiSample[]): Risk[] {
 function heatRisk(climate: ClimateData): Risk[] {
   const tMax = climate.daily.temperatureMax ?? [];
   if (tMax.length === 0) return [];
-  const hotDays = tMax.filter((t) => Number.isFinite(t) && t >= 35).length;
+  const hotDays = tMax.filter((t) => Number.isFinite(t) && t >= HEAT_DAY_C).length;
   if (hotDays < 5) return [];
   return [
     {
@@ -271,7 +272,7 @@ function heatRisk(climate: ClimateData): Risk[] {
       category: 'heat',
       severity: hotDays > 30 ? 'warn' : 'watch',
       title: 'HEAT STRESS',
-      detail: `${hotDays} days ≥ 35°C past 12 mo · cooling demand + health risk`,
+      detail: `${hotDays} days ≥ ${HEAT_DAY_C}°C past 12 mo · cooling demand + health risk`,
     },
   ];
 }

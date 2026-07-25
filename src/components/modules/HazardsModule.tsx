@@ -94,6 +94,8 @@ export function HazardsModule({ coordsA, coordsB, compareMode }: Props) {
         firesB={firesB.data ?? []}
         firesAStatus={firesA.status}
         firesBStatus={firesB.status}
+        firesAError={firesA.error}
+        firesBError={firesB.error}
       />
     );
   }
@@ -104,6 +106,7 @@ export function HazardsModule({ coordsA, coordsB, compareMode }: Props) {
       events={a.data}
       fires={firesA.data ?? []}
       firesStatus={firesA.status}
+      firesError={firesA.error}
     />
   );
 }
@@ -113,11 +116,13 @@ function SingleView({
   events,
   fires,
   firesStatus,
+  firesError,
 }: {
   coords: Coordinates;
   events: EarthquakeEvent[];
   fires: WildfireEvent[];
   firesStatus: string;
+  firesError: string | null;
 }) {
   const summary = useMemo(() => summarise(events), [events]);
   const years = useMemo(() => buildYears(events), [events]);
@@ -134,7 +139,7 @@ function SingleView({
             No M3.0+ events within 100 km in past 10 years.
           </div>
         </div>
-        <WildfireSection fires={fires} status={firesStatus} code="02" />
+        <WildfireSection fires={fires} status={firesStatus} error={firesError} code="02" />
       </div>
     );
   }
@@ -179,7 +184,7 @@ function SingleView({
         </ResponsiveContainer>
       </Section>
 
-      <WildfireSection fires={fires} status={firesStatus} code="03" />
+      <WildfireSection fires={fires} status={firesStatus} error={firesError} code="03" />
     </div>
   );
 }
@@ -193,6 +198,8 @@ function CompareView({
   firesB,
   firesAStatus,
   firesBStatus,
+  firesAError,
+  firesBError,
 }: {
   coordsA: Coordinates;
   coordsB: Coordinates;
@@ -202,6 +209,8 @@ function CompareView({
   firesB: WildfireEvent[];
   firesAStatus: string;
   firesBStatus: string;
+  firesAError: string | null;
+  firesBError: string | null;
 }) {
   const sumA = useMemo(() => summarise(eventsA), [eventsA]);
   const sumB = useMemo(() => summarise(eventsB), [eventsB]);
@@ -283,15 +292,15 @@ function CompareView({
         </ResponsiveContainer>
       </Section>
 
-      <Section code="03" title="WILDFIRE · NRT" subtitle="A | B · EONET OPEN + FIRMS 7D">
+      <Section code="03" title="WILDFIRE · NRT" subtitle="A | B · EONET OPEN + FIRMS 5D">
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <div className="text-[9px] font-mono uppercase tracking-widest text-cyan mb-1.5">TGT·A</div>
-            <WildfireList fires={firesA} status={firesAStatus} />
+            <WildfireList fires={firesA} status={firesAStatus} error={firesAError} />
           </div>
           <div>
             <div className="text-[9px] font-mono uppercase tracking-widest text-amber mb-1.5">TGT·B</div>
-            <WildfireList fires={firesB} status={firesBStatus} />
+            <WildfireList fires={firesB} status={firesBStatus} error={firesBError} />
           </div>
         </div>
       </Section>
@@ -302,15 +311,17 @@ function CompareView({
 function WildfireSection({
   fires,
   status,
+  error,
   code,
 }: {
   fires: WildfireEvent[];
   status: string;
+  error: string | null;
   code: string;
 }) {
   return (
-    <Section code={code} title="WILDFIRE · NRT" subtitle="EONET OPEN + FIRMS 7D · ≤220KM">
-      <WildfireList fires={fires} status={status} />
+    <Section code={code} title="WILDFIRE · NRT" subtitle="EONET OPEN + FIRMS 5D · ≤220KM">
+      <WildfireList fires={fires} status={status} error={error} />
     </Section>
   );
 }
@@ -318,9 +329,11 @@ function WildfireSection({
 function WildfireList({
   fires,
   status,
+  error,
 }: {
   fires: WildfireEvent[];
   status: string;
+  error: string | null;
 }) {
   if (status === 'loading' || status === 'idle') return <LoadingSkeleton />;
   if (status === 'error')
@@ -330,11 +343,20 @@ function WildfireList({
       </div>
     );
 
+  const partialNote = status === 'success' && error !== null && (
+    <div className="text-[9px] font-mono uppercase tracking-widest text-muted">
+      PARTIAL DATA · {error}
+    </div>
+  );
+
   if (fires.length === 0) {
     return (
-      <div className="border border-good/30 bg-good/5 px-3 py-2 rounded-md">
-        <div className="text-[9px] font-mono uppercase tracking-widest text-good">
-          ✓ NO ACTIVE HOTSPOTS IN RANGE
+      <div className="space-y-2">
+        {partialNote}
+        <div className="border border-good/30 bg-good/5 px-3 py-2 rounded-md">
+          <div className="text-[9px] font-mono uppercase tracking-widest text-good">
+            ✓ NO ACTIVE HOTSPOTS IN RANGE
+          </div>
         </div>
       </div>
     );
@@ -346,6 +368,7 @@ function WildfireList({
 
   return (
     <div className="space-y-2">
+      {partialNote}
       <div className="flex flex-wrap gap-3 text-[9px] font-mono uppercase tracking-widest text-muted">
         <span>EONET <span className="text-risk tabular-nums">{eonetCount}</span></span>
         <span>FIRMS <span className="text-risk tabular-nums">{firmsCount}</span></span>

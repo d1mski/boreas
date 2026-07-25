@@ -35,7 +35,34 @@ const TOOLTIP_STYLE = {
 };
 const WHO_LIMITS = { pm25: 5, pm10: 15, no2: 10, o3: 60 };
 
-function aqiBand(aqi: number): { label: string; tone: 'good' | 'warn' | 'risk' } {
+// Absent data reads as an em dash, never as a number. A pollutant series that
+// is all-null used to average to 0.0, which renders as cleaner-than-possible
+// air rather than "we don't know" (audit: the tool must not lie).
+const NO_DATA = '—';
+
+function fmt(v: number | null, digits: number): string {
+  return v === null ? NO_DATA : v.toFixed(digits);
+}
+
+/** Tone for a value against a WHO limit — neutral when there is no value. */
+function limitTone(v: number | null, limit: number): 'good' | 'warn' | 'neutral' {
+  if (v === null) return 'neutral';
+  return v > limit ? 'warn' : 'good';
+}
+
+/** A/B pair with a delta that collapses to NO_DATA if either side is missing. */
+function dual(av: number | null, bv: number | null, digits: number, threshold: number) {
+  const d = av === null || bv === null ? null : bv - av;
+  return {
+    valueA: fmt(av, digits),
+    valueB: fmt(bv, digits),
+    delta: d === null ? NO_DATA : signedFixed(d, digits),
+    deltaTone: d === null ? ('neutral' as const) : deltaTone(d, 'higher-bad', threshold),
+  };
+}
+
+function aqiBand(aqi: number | null): { label: string; tone: 'good' | 'warn' | 'risk' | 'neutral' } {
+  if (aqi === null) return { label: 'NO DATA', tone: 'neutral' };
   if (aqi <= 20) return { label: 'GOOD', tone: 'good' };
   if (aqi <= 40) return { label: 'FAIR', tone: 'good' };
   if (aqi <= 60) return { label: 'MODERATE', tone: 'warn' };
@@ -44,17 +71,24 @@ function aqiBand(aqi: number): { label: string; tone: 'good' | 'warn' | 'risk' }
   return { label: 'EXTREME', tone: 'risk' };
 }
 
-function mean(values: number[]): number {
-  if (values.length === 0) return 0;
+function mean(values: (number | null)[]): number | null {
+  const valid = values.filter((v): v is number => v !== null && Number.isFinite(v));
+  if (valid.length === 0) return null;
   let s = 0;
-  for (const v of values) s += v;
-  return s / values.length;
+  for (const v of valid) s += v;
+  return s / valid.length;
+}
+
+function aqiPeak(values: (number | null)[]): number | null {
+  const valid = values.filter((v): v is number => v !== null && Number.isFinite(v));
+  return valid.length === 0 ? null : Math.max(...valid);
 }
 
 function dailyAverage(samples: AqiSample[]): Array<{ date: string; aqi: number }> {
   if (samples.length === 0) return [];
   const map = new Map<string, { sum: number; count: number }>();
   for (const s of samples) {
+    if (s.europeanAqi === null) continue;
     const day = s.time.slice(0, 10);
     const e = map.get(day) ?? { sum: 0, count: 0 };
     e.sum += s.europeanAqi;
@@ -68,12 +102,12 @@ function dailyAverage(samples: AqiSample[]): Array<{ date: string; aqi: number }
 
 interface Stats {
   daily: Array<{ date: string; aqi: number }>;
-  pm25Mean: number;
-  pm10Mean: number;
-  no2Mean: number;
-  o3Mean: number;
-  aqiMean: number;
-  aqiPeak: number;
+  pm25Mean: number | null;
+  pm10Mean: number | null;
+  no2Mean: number | null;
+  o3Mean: number | null;
+  aqiMean: number | null;
+  aqiPeak: number | null;
 }
 
 function deriveStats(data: AqiSample[]): Stats {
@@ -84,7 +118,7 @@ function deriveStats(data: AqiSample[]): Stats {
     no2Mean: mean(data.map((s) => s.no2)),
     o3Mean: mean(data.map((s) => s.o3)),
     aqiMean: mean(data.map((s) => s.europeanAqi)),
-    aqiPeak: Math.max(...data.map((s) => s.europeanAqi)),
+    aqiPeak: aqiPeak(data.map((s) => s.europeanAqi)),
   };
 }
 
@@ -117,10 +151,10 @@ function SingleView({ s }: { s: Stats }) {
   return (
     <div className="space-y-5">
       <div className="grid gap-2 grid-cols-2 md:grid-cols-4">
-        <StatReadout label="MEAN AQI" value={s.aqiMean.toFixed(0)} hint={meanBand.label} tone={meanBand.tone} compact />
-        <StatReadout label="PEAK AQI" value={s.aqiPeak.toFixed(0)} hint={peakBand.label} tone={peakBand.tone} compact />
-        <StatReadout label="PM2.5" value={s.pm25Mean.toFixed(1)} hint={`WHO ${WHO_LIMITS.pm25} µg/m³`} tone={s.pm25Mean > WHO_LIMITS.pm25 ? 'warn' : 'good'} compact />
-        <StatReadout label="PM10" value={s.pm10Mean.toFixed(1)} hint={`WHO ${WHO_LIMITS.pm10} µg/m³`} tone={s.pm10Mean > WHO_LIMITS.pm10 ? 'warn' : 'good'} compact />
+        <StatReadout label="MEAN AQI" value={fmt(s.aqiMean, 0)} hint={meanBand.label} tone={meanBand.tone} compact />
+        <StatReadout label="PEAK AQI" value={fmt(s.aqiPeak, 0)} hint={peakBand.label} tone={peakBand.tone} compact />
+        <StatReadout label="PM2.5" value={fmt(s.pm25Mean, 1)} hint={`WHO ${WHO_LIMITS.pm25} µg/m³`} tone={limitTone(s.pm25Mean, WHO_LIMITS.pm25)} compact />
+        <StatReadout label="PM10" value={fmt(s.pm10Mean, 1)} hint={`WHO ${WHO_LIMITS.pm10} µg/m³`} tone={limitTone(s.pm10Mean, WHO_LIMITS.pm10)} compact />
       </div>
 
       <Section code="01" title="AQI TIMELINE" subtitle="EUROPEAN AQI · 92 DAYS · DAILY MEAN">
@@ -137,8 +171,8 @@ function SingleView({ s }: { s: Stats }) {
 
       <Section code="02" title="POLLUTANT LEVELS" subtitle="MEAN µg/m³ · WHO REFERENCE">
         <div className="grid gap-2 grid-cols-2">
-          <StatReadout label="NO₂" value={s.no2Mean.toFixed(1)} hint={`WHO ${WHO_LIMITS.no2} µg/m³`} tone={s.no2Mean > WHO_LIMITS.no2 ? 'warn' : 'good'} compact />
-          <StatReadout label="O₃" value={s.o3Mean.toFixed(1)} hint={`WHO ${WHO_LIMITS.o3} µg/m³`} tone={s.o3Mean > WHO_LIMITS.o3 ? 'warn' : 'good'} compact />
+          <StatReadout label="NO₂" value={fmt(s.no2Mean, 1)} hint={`WHO ${WHO_LIMITS.no2} µg/m³`} tone={limitTone(s.no2Mean, WHO_LIMITS.no2)} compact />
+          <StatReadout label="O₃" value={fmt(s.o3Mean, 1)} hint={`WHO ${WHO_LIMITS.o3} µg/m³`} tone={limitTone(s.o3Mean, WHO_LIMITS.o3)} compact />
         </div>
       </Section>
     </div>
@@ -161,48 +195,12 @@ function CompareView({ a, b }: { a: Stats; b: Stats }) {
     <div className="space-y-5">
       <Section code="01" title="AQI READOUT" subtitle="A ↔ B · 92 DAYS">
         <div className="grid gap-2 md:grid-cols-2">
-          <DualReadout
-            label="MEAN AQI"
-            valueA={a.aqiMean.toFixed(0)}
-            valueB={b.aqiMean.toFixed(0)}
-            delta={signedFixed(b.aqiMean - a.aqiMean, 0)}
-            deltaTone={deltaTone(b.aqiMean - a.aqiMean, 'higher-bad', 5)}
-          />
-          <DualReadout
-            label="PEAK AQI"
-            valueA={a.aqiPeak.toFixed(0)}
-            valueB={b.aqiPeak.toFixed(0)}
-            delta={signedFixed(b.aqiPeak - a.aqiPeak, 0)}
-            deltaTone={deltaTone(b.aqiPeak - a.aqiPeak, 'higher-bad', 10)}
-          />
-          <DualReadout
-            label="PM2.5"
-            valueA={a.pm25Mean.toFixed(1)}
-            valueB={b.pm25Mean.toFixed(1)}
-            delta={signedFixed(b.pm25Mean - a.pm25Mean, 1)}
-            deltaTone={deltaTone(b.pm25Mean - a.pm25Mean, 'higher-bad', 1)}
-          />
-          <DualReadout
-            label="PM10"
-            valueA={a.pm10Mean.toFixed(1)}
-            valueB={b.pm10Mean.toFixed(1)}
-            delta={signedFixed(b.pm10Mean - a.pm10Mean, 1)}
-            deltaTone={deltaTone(b.pm10Mean - a.pm10Mean, 'higher-bad', 2)}
-          />
-          <DualReadout
-            label="NO₂"
-            valueA={a.no2Mean.toFixed(1)}
-            valueB={b.no2Mean.toFixed(1)}
-            delta={signedFixed(b.no2Mean - a.no2Mean, 1)}
-            deltaTone={deltaTone(b.no2Mean - a.no2Mean, 'higher-bad', 2)}
-          />
-          <DualReadout
-            label="O₃"
-            valueA={a.o3Mean.toFixed(1)}
-            valueB={b.o3Mean.toFixed(1)}
-            delta={signedFixed(b.o3Mean - a.o3Mean, 1)}
-            deltaTone={deltaTone(b.o3Mean - a.o3Mean, 'higher-bad', 5)}
-          />
+          <DualReadout label="MEAN AQI" {...dual(a.aqiMean, b.aqiMean, 0, 5)} />
+          <DualReadout label="PEAK AQI" {...dual(a.aqiPeak, b.aqiPeak, 0, 10)} />
+          <DualReadout label="PM2.5" {...dual(a.pm25Mean, b.pm25Mean, 1, 1)} />
+          <DualReadout label="PM10" {...dual(a.pm10Mean, b.pm10Mean, 1, 2)} />
+          <DualReadout label="NO₂" {...dual(a.no2Mean, b.no2Mean, 1, 2)} />
+          <DualReadout label="O₃" {...dual(a.o3Mean, b.o3Mean, 1, 5)} />
         </div>
       </Section>
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type {
   ClimateData,
   Coordinates,
@@ -12,6 +12,7 @@ import { fetchJson, FetchError } from '../utils/fetcher';
 import { haversine } from '../utils/coordinates';
 import { cacheGet, cacheSet, TTL } from '../utils/persistentCache';
 import { Semaphore } from '../utils/semaphore';
+import { createSharedMap, sharedFetch } from '../utils/sharedFetch';
 
 // Rate-limit archive fetches to 2 concurrent — mirrors openMeteoGate in useOpenMeteo.
 const archiveGate = new Semaphore(2);
@@ -38,7 +39,7 @@ const DAILY_VARS = [
 
 // In-memory + idb cache — 30-day TTL (ERA5 reanalysis is stable; aggressive cache per RESEARCH).
 const cache = new Map<string, ClimateData>();
-const inflight = new Map<string, Promise<ClimateData>>();
+const inflight = createSharedMap<ClimateData>();
 
 const COORD_PRECISION = 2;
 const ARCHIVE_KEY_VERSION = 'era5v1';
@@ -185,12 +186,11 @@ async function fetchClimateArchive(
   // DO NOT DIVIDE temperature/wind arrays: they are averaged or max-reduced per
   // bucket, so they naturally represent a single year regardless of N.
   //
-  // Known issue: rainSum is also used as a per-day threshold (>= 1mm) to count
-  // rainDays in buildMonthlyAggregates. Dividing it will deflate rainDays counts
-  // for 5yr/10yr averages (only days with ≥5mm or ≥10mm resp. will count).
-  // This is a known limitation to be addressed in Plan 04's degrade/normalize
-  // logic (e.g. recompute rainDays from undivided precipitationSum, or apply ÷N
-  // to the aggregated count rather than the source values).
+  // rainDays is counted from undivided precipitationSum and ÷N'd inside
+  // buildMonthlyAggregates (fixed 2026-07; see climateAggregation.test.ts).
+  // The ÷N'd sums below need NO further division downstream: accumulating N
+  // years of ÷N daily values into one 12-month bucket already yields one
+  // average year — dividing again would double-divide.
   const n = years;
   const daily: DailyWeather = {
     time: rawTime,                                      // pass through — N years of dates
@@ -211,35 +211,10 @@ async function fetchClimateArchive(
   return { resolved: resolvedLoc, hourly, daily };
 }
 
-function sharedFetch(
-  coords: Coordinates,
-  bucketKey: string,
-  start: string,
-  end: string,
-  years: number,
-): Promise<ClimateData> {
-  const existing = inflight.get(bucketKey);
-  if (existing) return existing;
-  const ctrl = new AbortController();
-  const p = archiveGate
-    .run(() => fetchClimateArchive(coords, start, end, years, ctrl.signal))
-    .then((data) => {
-      cache.set(bucketKey, data);
-      void cacheSet(bucketKey, data, TTL.openMeteoArchive);
-      return data;
-    })
-    .finally(() => {
-      inflight.delete(bucketKey);
-    });
-  inflight.set(bucketKey, p);
-  return p;
-}
-
 export function useClimateArchive(coords: Coordinates | null, years: 5 | 10): ModuleState<ClimateData> {
   const [state, setState] = useState<ModuleState<ClimateData>>(() =>
     initialModuleState<ClimateData>(),
   );
-  const controllerRef = useRef<AbortController | null>(null);
 
   const qLat = coords ? Number(coords.lat.toFixed(COORD_PRECISION)) : null;
   const qLon = coords ? Number(coords.lon.toFixed(COORD_PRECISION)) : null;
@@ -262,39 +237,52 @@ export function useClimateArchive(coords: Coordinates | null, years: 5 | 10): Mo
       return;
     }
 
-    controllerRef.current?.abort();
-    const ctrl = new AbortController();
-    controllerRef.current = ctrl;
+    let cancelled = false;
+    // Set once the shared fetch is subscribed; releasing it aborts the
+    // underlying request when this is the last subscriber (see sharedFetch).
+    let release: (() => void) | null = null;
     setState({ status: 'loading', data: null, error: null });
 
     void (async () => {
       const persistent = await cacheGet<ClimateData>(key);
-      if (ctrl.signal.aborted) return;
+      if (cancelled) return;
       if (persistent) {
         cache.set(key, persistent);
         setState({ status: 'success', data: persistent, error: null });
         return;
       }
-      try {
-        const data = await sharedFetch(qCoords, key, start, end, years);
-        if (ctrl.signal.aborted) return;
-        setState({ status: 'success', data, error: null });
-      } catch (err: unknown) {
-        if (ctrl.signal.aborted) return;
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        const friendlier =
-          err instanceof FetchError && err.status === 429
-            ? 'Rate-limited by Open-Meteo Archive (retried 3×). Wait 30s and try again.'
-            : err instanceof Error
-            ? err.message
-            : String(err);
-        setState({ status: 'error', data: null, error: friendlier });
-        return;
-      }
+
+      const sub = sharedFetch(inflight, key, (signal) =>
+        archiveGate.run(async () => {
+          if (signal.aborted) throw new DOMException('aborted', 'AbortError');
+          const data = await fetchClimateArchive(qCoords, start, end, years, signal);
+          cache.set(key, data);
+          void cacheSet(key, data, TTL.openMeteoArchive);
+          return data;
+        }),
+      );
+      release = sub.release;
+      sub.promise
+        .then((data) => {
+          if (cancelled) return;
+          setState({ status: 'success', data, error: null });
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          const friendlier =
+            err instanceof FetchError && err.status === 429
+              ? 'Rate-limited by Open-Meteo Archive (retried 3×). Wait 30s and try again.'
+              : err instanceof Error
+              ? err.message
+              : String(err);
+          setState({ status: 'error', data: null, error: friendlier });
+        });
     })();
 
     return () => {
-      ctrl.abort();
+      cancelled = true;
+      release?.();
     };
   }, [qLat, qLon, years]);
 

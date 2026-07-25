@@ -1,9 +1,10 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Sun as SunLucide, Sunrise, Wind, TriangleAlert, Gauge, Globe, Waves } from 'lucide-react';
 import type { Coordinates, TabId } from '../../types';
 import { TAB_LABELS } from '../../types';
 import { ReportPanel } from './ReportPanel';
+import { PrivacyPanel } from './PrivacyPanel';
 import { LoadingSkeleton } from '../ui/LoadingSkeleton';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { useTheme, type ThemeMode } from '../../contexts/ThemeContext';
@@ -59,6 +60,7 @@ interface Props {
 }
 
 export function ModuleSheet({ active, coordsA, coordsB, compareMode, view, resolvedA, countryA, onToggleView, onSelect, onDrillDown, visibleTabs, climateYears, onClimateYearsChange, embedded }: Props) {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   return (
     <aside className={embedded ? "h-full w-full bg-panel flex flex-col" : "hidden md:flex h-full md:w-[392px] min-[1200px]:w-[560px] shrink-0 bg-panel border-l border-edge flex-col"}>
       {/* Mode bar: Overview/Advanced toggle + font/theme controls */}
@@ -148,8 +150,16 @@ export function ModuleSheet({ active, coordsA, coordsB, compareMode, view, resol
       {/* Footer */}
       <footer className="border-t border-edge px-4 py-2 text-[9px] font-mono uppercase tracking-widest text-dim flex items-center justify-between shrink-0">
         <span>{view === 'overview' ? 'OVW · REPORT' : `MOD · ${active.toUpperCase()}`}</span>
+        <button
+          onClick={() => setPrivacyOpen(true)}
+          className="uppercase tracking-widest text-dim hover:text-cyan transition-colors"
+        >
+          Privacy &amp; Data
+        </button>
         <span>v0.1</span>
       </footer>
+
+      <PrivacyPanel open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
     </aside>
   );
 }

@@ -1,4 +1,5 @@
 import type { ClimateData, DailyWeather, HourlyWeather } from '../types';
+import { HEAT_DAY_C } from './severityThresholds';
 
 export interface MonthHourCell {
   tempMean: number;
@@ -81,7 +82,7 @@ export function buildTemperatureHeatmap(hourly: HourlyWeather): HeatmapData {
   return { cells, minTemp, maxTemp };
 }
 
-export function buildMonthlyAggregates(climate: ClimateData): MonthlyAggregate[] {
+export function buildMonthlyAggregates(climate: ClimateData, years: number): MonthlyAggregate[] {
   const daily = climate.daily;
   const hourly = climate.hourly;
   const buckets: Array<{
@@ -143,10 +144,12 @@ export function buildMonthlyAggregates(climate: ClimateData): MonthlyAggregate[]
     if (Number.isFinite(tMax) && tMax > b.tempMax) b.tempMax = tMax;
     if (Number.isFinite(tMax)) { b.highSum += tMax; b.highCount += 1; }
     const rain = daily.rainSum[i];
-    if (Number.isFinite(rain)) {
-      b.rainSum += rain;
-      if (rain >= 1) b.rainDays += 1;
-    }
+    if (Number.isFinite(rain)) b.rainSum += rain;
+    // Wet-day counting must use the UNDIVIDED per-day series. rainSum arrives
+    // ÷N on 5/10-yr archive data, which silently raised the >=1mm threshold to
+    // >=N mm. precipitationSum passes through undivided by design.
+    const precip = daily.precipitationSum[i];
+    if (Number.isFinite(precip) && precip >= 1) b.rainDays += 1;
     const sun = daily.sunshineDuration[i];
     if (Number.isFinite(sun)) b.sunshineSeconds += sun;
     const uv = daily.uvIndexMax[i];
@@ -182,9 +185,13 @@ export function buildMonthlyAggregates(climate: ClimateData): MonthlyAggregate[]
     avgHigh: b.highCount ? b.highSum / b.highCount : 0,
     avgLow: b.lowCount ? b.lowSum / b.lowCount : 0,
     humidityMean: b.humidityCount ? b.humiditySum / b.humidityCount : 0,
+    // NO ÷years here, deliberately. useClimateArchive already divides the
+    // sum-type daily series by N (see its NORMALIZATION block), so summing N
+    // years of ÷N values into one month bucket is already an average year.
+    // Dividing again is the double-divide the audit fixed.
     rainSum: b.rainSum,
-    rainDays: b.rainDays,
-    sunshineHours: b.sunshineSeconds / 3600,
+    rainDays: Math.round(b.rainDays / years), // ÷years: counted from the UNDIVIDED series
+    sunshineHours: b.sunshineSeconds / 3600, // seconds→hours only; already ÷N
     uvMax: b.uvMax,
     windMean: b.windCount ? b.windSum / b.windCount : 0,
     gustMax: b.gustMax,
@@ -198,7 +205,7 @@ export function countExtremeDays(daily: DailyWeather): ExtremeDayCounts {
   let strongGusts = 0;
   const n = daily.time.length;
   for (let i = 0; i < n; i++) {
-    if ((daily.temperatureMax[i] ?? -Infinity) > 35) above35 += 1;
+    if ((daily.temperatureMax[i] ?? -Infinity) >= HEAT_DAY_C) above35 += 1;
     if ((daily.temperatureMin[i] ?? Infinity) < 0) below0 += 1;
     if ((daily.precipitationSum[i] ?? 0) > 20) heavyRain += 1;
     if ((daily.windGustsMax[i] ?? 0) > 60) strongGusts += 1;

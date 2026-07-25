@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harbour &amp; Stone — Location Report · St Ives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#11161C;
+    --ink-2:#374049;
+    --ink-3:#5A6570;
+    --line:#E2E6EA;
+    --line-2:#EEF0F2;
+    --paper:#FFFFFF;
+    --paper-2:#FCFCFD;
+    --accent:#0E5A57;
+    --accent-tint:#E7F0EF;
+    --accent-tint-2:#F2F7F6;
+    --backdrop:#EEF0F2;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  html{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--backdrop);
+    color:var(--ink);
+    line-height:1.5;
+    padding:24px 0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:24px;
+  }
+
+  .page{
+    width:210mm;
+    height:297mm;
+    background:var(--paper);
+    border:1px solid var(--line);
+    box-shadow:0 1px 2px rgba(17,22,28,.04), 0 12px 32px rgba(17,22,28,.08);
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .pad{ padding:16mm 16mm 0 16mm; }
+  .tabnum{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+
+  /* ---------- shared brand bar ---------- */
+  .brandbar{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    padding-bottom:11px;
+  }
+  .lockup{ display:flex; align-items:center; gap:11px; }
+  .mark{
+    width:34px;height:34px;flex:0 0 34px;
+    border:1.5px solid var(--accent);
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand-name{
+    font-size:15px;font-weight:700;letter-spacing:.14em;
+    color:var(--ink);
+  }
+  .brand-sub{
+    font-size:10.5px;font-weight:500;letter-spacing:.02em;
+    color:var(--ink-3);margin-top:1px;
+  }
+  .meta{ text-align:right; font-size:10px; line-height:1.6; color:var(--ink-3); }
+  .meta b{ color:var(--ink-2); font-weight:600; }
+  .accent-rule{ height:2px; background:var(--accent); border:0; }
+  .accent-rule.thin{ height:1px; background:var(--line); }
+
+  /* ---------- cover title ---------- */
+  .cover-head{ padding-top:18px; }
+  .kicker{
+    font-size:11px;font-weight:600;letter-spacing:.16em;
+    color:var(--accent);text-transform:uppercase;
+  }
+  h1.title{
+    font-size:74px;line-height:.96;font-weight:700;
+    letter-spacing:-0.045em;color:var(--ink);margin-top:8px;
+  }
+  .place-line{
+    font-size:15px;font-weight:600;color:var(--ink-2);margin-top:10px;
+  }
+  .geo-line{
+    font-size:11.5px;font-weight:500;color:var(--ink-3);margin-top:4px;
+  }
+
+  /* ---------- map hero ---------- */
+  .hero{
+    margin-top:16px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--paper-2);
+  }
+  .hero svg{ display:block; width:100%; height:auto; }
+  .hero-cap{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 12px;border-top:1px solid var(--line);
+    font-size:9.5px;color:var(--ink-3);letter-spacing:.02em;
+  }
+  .hero-cap b{ color:var(--ink-2);font-weight:600; }
+
+  /* ---------- at a glance index ---------- */
+  .section-label{
+    display:flex;align-items:baseline;gap:10px;margin-top:20px;margin-bottom:11px;
+  }
+  .section-label .n{ font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--accent); }
+  .section-label .t{ font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--ink-2);text-transform:uppercase; }
+  .section-label .ln{ flex:1;height:1px;background:var(--line); }
+
+  .index{ border-top:1px solid var(--line); }
+  .index-row{
+    display:grid;
+    grid-template-columns:128px 1fr 96px;
+    align-items:center;
+    gap:16px;
+    padding:13px 2px;
+    border-bottom:1px solid var(--line);
+  }
+  .ix-label{ font-size:12.5px;font-weight:600;color:var(--ink); }
+  .ix-sub{ font-size:10px;font-weight:500;color:var(--ink-3);margin-top:2px; }
+  .ix-value{ font-size:13px;font-weight:600;color:var(--ink-2);}
+  .ix-value .u{ font-size:10.5px;font-weight:500;color:var(--ink-3); }
+  .ix-rate{ display:flex;flex-direction:column;align-items:flex-end;gap:5px; }
+  .ix-tag{ font-size:9.5px;font-weight:600;letter-spacing:.02em;color:var(--accent); }
+  .bar{
+    width:92px;height:6px;border-radius:3px;background:var(--line-2);
+    overflow:hidden;position:relative;
+  }
+  .bar > i{ display:block;height:100%;background:var(--accent);border-radius:3px; }
+
+  /* ---------- footer ---------- */
+  .pg-footer{
+    margin-top:auto;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:11px 16mm;
+    border-top:1px solid var(--line);
+    font-size:9.5px;color:var(--ink-3);letter-spacing:.02em;
+  }
+  .pg-footer b{ color:var(--ink-2);font-weight:600; }
+  .boreas{ font-weight:600;color:var(--ink-2); }
+  .boreas .dot{ color:var(--accent); }
+
+  /* ============ PAGE 2 ============ */
+  .chap-head{ padding-top:18px; }
+  .chap-num{
+    font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--accent);
+  }
+  h2.chap-title{
+    font-size:38px;line-height:1.02;font-weight:700;letter-spacing:-0.04em;
+    color:var(--ink);margin-top:6px;
+  }
+  .chap-summary{
+    font-size:13px;font-weight:500;color:var(--ink-2);margin-top:11px;
+    max-width:68ch;line-height:1.55;
+  }
+
+  .fig{
+    margin-top:18px;border:1px solid var(--line);border-radius:10px;
+    background:var(--paper-2);padding:14px 16px 12px;
+  }
+  .fig-head{ display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px; }
+  .fig-title{ font-size:11.5px;font-weight:600;color:var(--ink);letter-spacing:.01em; }
+  .fig-unit{ font-size:9.5px;font-weight:500;color:var(--ink-3); }
+  .legend{ display:flex;gap:14px;margin-top:2px; }
+  .lg{ display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--ink-3);font-weight:500; }
+  .lg .sw{ width:14px;height:3px;border-radius:2px;display:inline-block; }
+  .lg .swb{ width:11px;height:9px;border-radius:2px;display:inline-block; }
+  .fig svg{ display:block;width:100%;height:auto; }
+
+  .two-col{ display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px; }
+
+  /* table */
+  .tbl{ width:100%;border-collapse:collapse;margin-top:18px; }
+  .tbl caption{ text-align:left;font-size:11.5px;font-weight:600;color:var(--ink);margin-bottom:8px;letter-spacing:.01em; }
+  .tbl th, .tbl td{ padding:6.5px 8px;font-size:10.5px;border-bottom:1px solid var(--line); }
+  .tbl thead th{
+    text-align:right;font-weight:600;color:var(--ink-3);
+    font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;
+    border-bottom:1.5px solid var(--ink); background:transparent;
+  }
+  .tbl thead th:first-child, .tbl tbody th{ text-align:left; }
+  .tbl tbody th{ font-weight:600;color:var(--ink-2); }
+  .tbl td{ text-align:right;color:var(--ink-2);font-weight:500; }
+  .tbl td.mean{ color:var(--ink);font-weight:600; }
+  .tbl tbody tr:nth-child(even){ background:var(--paper-2); }
+  .tbl tfoot td, .tbl tfoot th{
+    border-bottom:none;border-top:1.5px solid var(--ink);
+    font-weight:700;color:var(--ink);font-size:10.5px;
+  }
+
+  /* assessment callout */
+  .callout{
+    margin-top:18px;border:1px solid var(--line);border-radius:10px;
+    background:var(--accent-tint-2);padding:15px 17px;
+    display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;
+  }
+  .callout .ic{
+    width:30px;height:30px;flex:0 0 30px;border-radius:7px;
+    background:var(--accent);display:flex;align-items:center;justify-content:center;
+  }
+  .callout h3{ font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:5px; }
+  .callout p{ font-size:11.5px;line-height:1.6;color:var(--ink-2);max-width:70ch; }
+  .callout p b{ color:var(--ink);font-weight:600; }
+
+  @page{ size:A4; margin:0; }
+  @media print{
+    body{ background:#fff;padding:0;gap:0; }
+    .page{ box-shadow:none;border:0;page-break-after:always;width:210mm;height:297mm; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ PAGE 1 — COVER ============================ -->
+<section class="page">
+  <div class="pad">
+    <!-- brand bar -->
+    <div class="brandbar">
+      <div class="lockup">
+        <div class="mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 16.5 V8.2 L10 3.5 L17 8.2 V16.5" stroke="#0E5A57" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M8 16.5 V11.4 H12 V16.5" stroke="#0E5A57" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">HARBOUR &amp; STONE</div>
+          <div class="brand-sub">Fine Coastal Homes · Cornwall</div>
+        </div>
+      </div>
+      <div class="meta tabnum">
+        <div><b>Location Report</b></div>
+        <div>Issued 26 June 2026</div>
+        <div>Ref. HS&#8202;-&#8202;2026&#8202;-&#8202;0847</div>
+      </div>
+    </div>
+    <hr class="accent-rule">
+
+    <!-- title -->
+    <div class="cover-head">
+      <div class="kicker">Property Location Intelligence</div>
+      <h1 class="title">St&nbsp;Ives</h1>
+      <div class="place-line">Cornwall, England · TR26</div>
+      <div class="geo-line tabnum">50.2084°N, 5.4901°W · 82&nbsp;m elevation · SW-facing Atlantic coast</div>
+    </div>
+
+    <!-- map hero -->
+    <div class="hero">
+      <svg viewBox="0 0 600 268" role="img" aria-label="Schematic coastal plan of St Ives with the property location marked.">
+        <defs>
+          <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+            <path d="M30 0 H0 V30" fill="none" stroke="#EAEDEF" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="600" height="268" fill="#FCFCFD"/>
+        <rect width="600" height="268" fill="url(#grid)"/>
+
+        <!-- sea region (top-left, Atlantic / St Ives Bay) -->
+        <path d="M0 0 H600 V58 C512 84 470 70 408 96 C360 116 330 96 286 120
+                 C242 144 214 120 168 138 C118 158 78 140 0 168 Z"
+              fill="#E7F0EF"/>
+        <!-- sea hatch lines -->
+        <g stroke="#CFE0DE" stroke-width="1" fill="none" opacity=".9">
+          <path d="M40 132 q26 -10 52 0 t52 0 t52 0"/>
+          <path d="M150 150 q26 -10 52 0 t52 0 t52 0"/>
+          <path d="M300 96 q26 -10 52 0 t52 0 t52 0"/>
+          <path d="M430 78 q26 -10 52 0 t52 0 t52 0"/>
+        </g>
+        <text x="86" y="52" font-family="Inter" font-size="11" font-weight="600" letter-spacing="2.5" fill="#0E5A57" opacity=".85">ST IVES BAY · ATLANTIC</text>
+
+        <!-- coastline stroke -->
+        <path d="M0 168 C78 140 118 158 168 138 C214 120 242 144 286 120
+                 C330 96 360 116 408 96 C470 70 512 84 600 58"
+              fill="none" stroke="#0E5A57" stroke-width="1.75"/>
+
+        <!-- headland -->
+        <path d="M286 120 C300 150 282 176 300 200 C312 184 330 176 332 152 C334 138 320 126 286 120 Z"
+              fill="#F2F7F6" stroke="#0E5A57" stroke-width="1" opacity=".9"/>
+
+        <!-- street grid (land) -->
+        <g stroke="#DCE1E4" stroke-width="1.25" fill="none">
+          <path d="M60 196 H540"/>
+          <path d="M60 224 H540"/>
+          <path d="M120 182 V252"/>
+          <path d="M210 168 V252"/>
+          <path d="M300 200 V252"/>
+          <path d="M390 178 V252"/>
+          <path d="M468 162 V252"/>
+        </g>
+        <!-- a couple of stronger roads -->
+        <g stroke="#BFC7CC" stroke-width="2" fill="none">
+          <path d="M40 210 H560"/>
+          <path d="M256 150 V252"/>
+        </g>
+
+        <!-- harbour quay arc -->
+        <path d="M210 156 q60 26 96 8" fill="none" stroke="#0E5A57" stroke-width="1.5" stroke-dasharray="1 4" stroke-linecap="round"/>
+
+        <!-- the property marker -->
+        <g transform="translate(256,178)">
+          <circle r="26" fill="#0E5A57" opacity="0.10"/>
+          <circle r="15" fill="#0E5A57" opacity="0.16"/>
+          <circle r="5.5" fill="#0E5A57" stroke="#FFFFFF" stroke-width="2"/>
+          <line x1="0" y1="-30" x2="0" y2="-12" stroke="#0E5A57" stroke-width="1.25"/>
+          <line x1="0" y1="12" x2="0" y2="30" stroke="#0E5A57" stroke-width="1.25"/>
+          <line x1="-30" y1="0" x2="-12" y2="0" stroke="#0E5A57" stroke-width="1.25"/>
+          <line x1="12" y1="0" x2="30" y2="0" stroke="#0E5A57" stroke-width="1.25"/>
+        </g>
+        <text x="270" y="172" font-family="Inter" font-size="10.5" font-weight="700" fill="#11161C">Subject location</text>
+        <text x="270" y="185" font-family="Inter" font-size="9" font-weight="500" fill="#5A6570">50.2084°N · 5.4901°W</text>
+
+        <!-- scale bar + compass -->
+        <g transform="translate(60,244)">
+          <line x1="0" y1="0" x2="80" y2="0" stroke="#5A6570" stroke-width="1.25"/>
+          <line x1="0" y1="-3" x2="0" y2="3" stroke="#5A6570" stroke-width="1.25"/>
+          <line x1="40" y1="-3" x2="40" y2="3" stroke="#5A6570" stroke-width="1.25"/>
+          <line x1="80" y1="-3" x2="80" y2="3" stroke="#5A6570" stroke-width="1.25"/>
+          <text x="0" y="14" font-family="Inter" font-size="8" fill="#5A6570">0</text>
+          <text x="74" y="14" font-family="Inter" font-size="8" fill="#5A6570">500&#8202;m</text>
+        </g>
+        <g transform="translate(556,206)">
+          <circle r="14" fill="#FFFFFF" stroke="#DCE1E4" stroke-width="1"/>
+          <path d="M0 -9 L3 0 L0 -2 L-3 0 Z" fill="#0E5A57"/>
+          <path d="M0 9 L3 0 L0 2 L-3 0 Z" fill="#BFC7CC"/>
+          <text x="0" y="-15" font-family="Inter" font-size="7.5" font-weight="700" fill="#11161C" text-anchor="middle">N</text>
+        </g>
+      </svg>
+      <div class="hero-cap">
+        <span>Schematic plan · St Ives, TR26 · not to navigational scale</span>
+        <span><b>WGS84</b> 50.2084, −5.4901</span>
+      </div>
+    </div>
+
+    <!-- at a glance index -->
+    <div class="section-label">
+      <span class="n">AT A GLANCE</span>
+      <span class="ln"></span>
+      <span class="t">Liveability index</span>
+    </div>
+
+    <div class="index">
+      <div class="index-row">
+        <div>
+          <div class="ix-label">Sunshine</div>
+          <div class="ix-sub">Annual bright hours</div>
+        </div>
+        <div class="ix-value tabnum">≈&nbsp;1,650&nbsp;<span class="u">hrs/yr</span></div>
+        <div class="ix-rate">
+          <span class="ix-tag">Top-tier UK</span>
+          <span class="bar" role="img" aria-label="Rating 5 of 5"><i style="width:94%"></i></span>
+        </div>
+      </div>
+
+      <div class="index-row">
+        <div>
+          <div class="ix-label">Air quality</div>
+          <div class="ix-sub">European AQI · PM2.5 ≈ 10 µg/m³</div>
+        </div>
+        <div class="ix-value tabnum">AQI&nbsp;39&nbsp;<span class="u">Good</span></div>
+        <div class="ix-rate">
+          <span class="ix-tag">Good</span>
+          <span class="bar" role="img" aria-label="Rating 4.5 of 5"><i style="width:88%"></i></span>
+        </div>
+      </div>
+
+      <div class="index-row">
+        <div>
+          <div class="ix-label">Climate</div>
+          <div class="ix-sub">Mild oceanic · narrow range</div>
+        </div>
+        <div class="ix-value tabnum">8–17&nbsp;<span class="u">°C mean</span></div>
+        <div class="ix-rate">
+          <span class="ix-tag">Temperate</span>
+          <span class="bar" role="img" aria-label="Rating 4.5 of 5"><i style="width:86%"></i></span>
+        </div>
+      </div>
+
+      <div class="index-row">
+        <div>
+          <div class="ix-label">Hazard exposure</div>
+          <div class="ix-sub">Seismic · wildfire · flood</div>
+        </div>
+        <div class="ix-value">Low</div>
+        <div class="ix-rate">
+          <span class="ix-tag">Low risk</span>
+          <span class="bar" role="img" aria-label="Rating 4.5 of 5, lower is better"><i style="width:84%"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Location intelligence · data by <span class="boreas">Boreas<span class="dot">.</span></span></span>
+    <span>Harbour &amp; Stone · St Ives, Cornwall · Page&nbsp;1 of&nbsp;2</span>
+  </div>
+</section>
+
+
+<!-- ============================ PAGE 2 — CLIMATE ============================ -->
+<section class="page">
+  <div class="pad">
+    <!-- brand bar (compact) -->
+    <div class="brandbar">
+      <div class="lockup">
+        <div class="mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 16.5 V8.2 L10 3.5 L17 8.2 V16.5" stroke="#0E5A57" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M8 16.5 V11.4 H12 V16.5" stroke="#0E5A57" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">HARBOUR &amp; STONE</div>
+          <div class="brand-sub">St Ives · TR26 · Location Report</div>
+        </div>
+      </div>
+      <div class="meta tabnum">
+        <div><b>Ref. HS&#8202;-&#8202;2026&#8202;-&#8202;0847</b></div>
+        <div>Climate chapter</div>
+      </div>
+    </div>
+    <hr class="accent-rule thin">
+
+    <!-- chapter head -->
+    <div class="chap-head">
+      <div class="chap-num">01 — Climate</div>
+      <h2 class="chap-title">A mild Atlantic climate</h2>
+      <p class="chap-summary">Mild oceanic climate. Narrow annual range, no temperature extremes, and exceptional sunshine for the United Kingdom. Winters stay frost-light; summers are warm rather than hot.</p>
+    </div>
+
+    <!-- temperature figure -->
+    <div class="fig">
+      <div class="fig-head">
+        <div>
+          <div class="fig-title">Monthly temperature · mean with daily max/min band</div>
+        </div>
+        <div class="fig-unit">°C</div>
+      </div>
+      <div class="legend">
+        <span class="lg"><span class="swb" style="background:#CADedc"></span>Daily max–min range</span>
+        <span class="lg"><span class="sw" style="background:#0E5A57"></span>Monthly mean</span>
+      </div>
+      <!-- chart: x 12 months; y 0..22°C -->
+      <svg viewBox="0 0 540 196" role="img" aria-label="Line chart of monthly mean temperature from 8°C in January rising to 17°C in July and August, with a shaded daily max-min band.">
+        <!-- plot frame: left 34, right 528, top 12, bottom 168 -->
+        <!-- gridlines + y labels at 0,5,10,15,20 -->
+        <g font-family="Inter" font-size="8.5" fill="#9AA3AB">
+          <line x1="34" y1="168" x2="528" y2="168" stroke="#E2E6EA" stroke-width="1"/>
+          <line x1="34" y1="133.5" x2="528" y2="133.5" stroke="#EEF0F2" stroke-width="1"/>
+          <line x1="34" y1="99" x2="528" y2="99" stroke="#EEF0F2" stroke-width="1"/>
+          <line x1="34" y1="64.5" x2="528" y2="64.5" stroke="#EEF0F2" stroke-width="1"/>
+          <line x1="34" y1="30" x2="528" y2="30" stroke="#EEF0F2" stroke-width="1"/>
+          <text x="28" y="171" text-anchor="end">0</text>
+          <text x="28" y="136.5" text-anchor="end">5</text>
+          <text x="28" y="102" text-anchor="end">10</text>
+          <text x="28" y="67.5" text-anchor="end">15</text>
+          <text x="28" y="33" text-anchor="end">20</text>
+        </g>
+
+        <!-- band: max top, min bottom. scale: y = 168 - val*6.9 ; x = 52 + i*42 -->
+        <!-- max: 10,10,11,13,16,18,20,20,18,15,12,10  min: 6,5,6,7,9,12,14,14,13,11,8,7 -->
+        <path d="M52 99 L94 99 L136 92.1 L178 78.3 L220 57.6 L262 43.8 L304 30 L346 30 L388 43.8 L430 64.5 L472 85.2 L514 99
+                 L514 119.7 L472 112.8 L430 92.1 L388 71.4 L346 71.4 L304 71.4 L262 85.2 L220 106.9 L178 119.7 L136 126.6 L94 133.5 L52 126.6 Z"
+              fill="#CADEDC" opacity=".7"/>
+
+        <!-- mean line: 8,8,9,10,12,15,17,17,16,14,11,9 -->
+        <polyline points="52,112.8 94,112.8 136,105.9 178,99 220,85.2 262,64.5 304,50.7 346,50.7 388,57.6 430,71.4 472,92.1 514,105.9"
+                  fill="none" stroke="#0E5A57" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- mean points -->
+        <g fill="#0E5A57">
+          <circle cx="52" cy="112.8" r="2.6"/><circle cx="94" cy="112.8" r="2.6"/><circle cx="136" cy="105.9" r="2.6"/>
+          <circle cx="178" cy="99" r="2.6"/><circle cx="220" cy="85.2" r="2.6"/><circle cx="262" cy="64.5" r="2.6"/>
+          <circle cx="304" cy="50.7" r="2.6"/><circle cx="346" cy="50.7" r="2.6"/><circle cx="388" cy="57.6" r="2.6"/>
+          <circle cx="430" cy="71.4" r="2.6"/><circle cx="472" cy="92.1" r="2.6"/><circle cx="514" cy="105.9" r="2.6"/>
+        </g>
+        <!-- peak label -->
+        <text x="325" y="44" font-family="Inter" font-size="8.5" font-weight="600" fill="#0E5A57" text-anchor="middle">17° peak</text>
+
+        <!-- month ticks -->
+        <g font-family="Inter" font-size="8.5" fill="#5A6570" text-anchor="middle">
+          <text x="52" y="184">J</text><text x="94" y="184">F</text><text x="136" y="184">M</text>
+          <text x="178" y="184">A</text><text x="220" y="184">M</text><text x="262" y="184">J</text>
+          <text x="304" y="184">J</text><text x="346" y="184">A</text><text x="388" y="184">S</text>
+          <text x="430" y="184">O</text><text x="472" y="184">N</text><text x="514" y="184">D</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- rainfall figure -->
+    <div class="fig">
+      <div class="fig-head">
+        <div class="fig-title">Monthly rainfall</div>
+        <div class="fig-unit">mm · annual ≈ 1,010</div>
+      </div>
+      <svg viewBox="0 0 540 132" role="img" aria-label="Bar chart of monthly rainfall, highest at 120 mm in November and December, lowest at 55 mm in June.">
+        <!-- baseline y=108, bars scale: h = val*0.66 ; max 120 -> ~79 -->
+        <g font-family="Inter" font-size="8" fill="#9AA3AB">
+          <line x1="34" y1="108" x2="528" y2="108" stroke="#CBD2D7" stroke-width="1.25"/>
+          <line x1="34" y1="62.4" x2="528" y2="62.4" stroke="#EEF0F2" stroke-width="1"/>
+          <line x1="34" y1="28.8" x2="528" y2="28.8" stroke="#EEF0F2" stroke-width="1"/>
+          <text x="28" y="111" text-anchor="end">0</text>
+          <text x="28" y="65.4" text-anchor="end">60</text>
+          <text x="28" y="31.8" text-anchor="end">120</text>
+        </g>
+        <!-- bars; values 110,85,75,65,60,55,60,70,80,110,120,120 ; bar width 24 centered at x=52+i*42 -->
+        <g fill="#0E5A57">
+          <rect x="40"  y="47.4"  width="24" height="60.6" rx="2"/>
+          <rect x="82"  y="60.9"  width="24" height="47.1" rx="2"/>
+          <rect x="124" y="66.5"  width="24" height="41.5" rx="2"/>
+          <rect x="166" y="72.1"  width="24" height="35.9" rx="2"/>
+          <rect x="208" y="74.4"  width="24" height="33.6" rx="2"/>
+          <rect x="250" y="76.7"  width="24" height="31.3" rx="2"/>
+          <rect x="292" y="74.4"  width="24" height="33.6" rx="2"/>
+          <rect x="334" y="68.8"  width="24" height="39.2" rx="2"/>
+          <rect x="376" y="63.2"  width="24" height="44.8" rx="2"/>
+          <rect x="418" y="47.4"  width="24" height="60.6" rx="2"/>
+          <rect x="460" y="38.4"  width="24" height="69.6" rx="2"/>
+          <rect x="502" y="38.4"  width="24" height="69.6" rx="2"/>
+        </g>
+        <!-- value labels on notable bars -->
+        <g font-family="Inter" font-size="8" font-weight="600" fill="#374049" text-anchor="middle">
+          <text x="52" y="42">110</text>
+          <text x="262" y="71">55</text>
+          <text x="472" y="33">120</text>
+          <text x="514" y="33">120</text>
+        </g>
+        <!-- month ticks -->
+        <g font-family="Inter" font-size="8.5" fill="#5A6570" text-anchor="middle">
+          <text x="52" y="124">J</text><text x="94" y="124">F</text><text x="136" y="124">M</text>
+          <text x="178" y="124">A</text><text x="220" y="124">M</text><text x="262" y="124">J</text>
+          <text x="304" y="124">J</text><text x="346" y="124">A</text><text x="388" y="124">S</text>
+          <text x="430" y="124">O</text><text x="472" y="124">N</text><text x="514" y="124">D</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- normals table -->
+    <table class="tbl tabnum">
+      <caption>Monthly normals · temperature &amp; rainfall</caption>
+      <thead>
+        <tr>
+          <th scope="col">Month</th>
+          <th scope="col">Mean °C</th>
+          <th scope="col">Max °C</th>
+          <th scope="col">Min °C</th>
+          <th scope="col">Rain mm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Jan</th><td class="mean">8</td><td>10</td><td>6</td><td>110</td></tr>
+        <tr><th scope="row">Feb</th><td class="mean">8</td><td>10</td><td>5</td><td>85</td></tr>
+        <tr><th scope="row">Mar</th><td class="mean">9</td><td>11</td><td>6</td><td>75</td></tr>
+        <tr><th scope="row">Apr</th><td class="mean">10</td><td>13</td><td>7</td><td>65</td></tr>
+        <tr><th scope="row">May</th><td class="mean">12</td><td>16</td><td>9</td><td>60</td></tr>
+        <tr><th scope="row">Jun</th><td class="mean">15</td><td>18</td><td>12</td><td>55</td></tr>
+        <tr><th scope="row">Jul</th><td class="mean">17</td><td>20</td><td>14</td><td>60</td></tr>
+        <tr><th scope="row">Aug</th><td class="mean">17</td><td>20</td><td>14</td><td>70</td></tr>
+        <tr><th scope="row">Sep</th><td class="mean">16</td><td>18</td><td>13</td><td>80</td></tr>
+        <tr><th scope="row">Oct</th><td class="mean">14</td><td>15</td><td>11</td><td>110</td></tr>
+        <tr><th scope="row">Nov</th><td class="mean">11</td><td>12</td><td>8</td><td>120</td></tr>
+        <tr><th scope="row">Dec</th><td class="mean">9</td><td>10</td><td>7</td><td>120</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><th scope="row">Year</th><td>12</td><td>20</td><td>5</td><td>1,010</td></tr>
+      </tfoot>
+    </table>
+
+    <!-- assessment -->
+    <div class="callout">
+      <div class="ic" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3.5 8.5 L6.5 11.5 L12.5 4.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h3>Assessment</h3>
+        <p>A <b>9°C annual swing</b> and near-absent frost make St Ives one of the most temperate locations in Britain: comfortable year-round, with mild winters that protect tender planting and extend the gardening season. <b>Summers stay warm rather than hot</b> (means peaking at 17°C), favouring outdoor living without heat stress. Rainfall concentrates in late autumn, while <b>spring and early summer stay notably dry</b>, supporting consistent outdoor and amenity use.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Location intelligence · data by <span class="boreas">Boreas<span class="dot">.</span></span></span>
+    <span>Harbour &amp; Stone · St Ives, Cornwall · Page&nbsp;2 of&nbsp;2</span>
+  </div>
+</section>
+
+</body>
+</html>

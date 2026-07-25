@@ -1,0 +1,26 @@
+name: ci
+# push was on '**', which double-ran every PR branch: once for the push and
+# again for the pull_request event. Branch pushes get their run via the PR.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# A follow-up push supersedes the run already in flight for the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npm run build

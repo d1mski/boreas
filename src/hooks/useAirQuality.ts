@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { AqiSample, Coordinates, ModuleState } from '../types';
 import { initialModuleState } from '../types';
 import { fetchJson } from '../utils/fetcher';
 import { cacheGet, cacheSet, TTL } from '../utils/persistentCache';
+import { createSharedMap, sharedFetch } from '../utils/sharedFetch';
 
 const BASE = 'https://air-quality-api.open-meteo.com/v1/air-quality';
 
@@ -38,6 +39,7 @@ interface AirQualityResponse {
 }
 
 const cache = new Map<string, AqiSample[]>();
+const inflight = createSharedMap<AqiSample[]>();
 
 function makeKey(coords: Coordinates): string {
   return `aqv2|${coords.lat.toFixed(4)}|${coords.lon.toFixed(4)}`;
@@ -65,11 +67,11 @@ async function fetchAqi(
   for (let i = 0; i < time.length; i++) {
     samples.push({
       time: time[i],
-      europeanAqi: european_aqi[i] ?? 0,
-      pm10: pm10[i] ?? 0,
-      pm25: pm2_5[i] ?? 0,
-      no2: nitrogen_dioxide[i] ?? 0,
-      o3: ozone[i] ?? 0,
+      europeanAqi: european_aqi[i] ?? null,
+      pm10: pm10[i] ?? null,
+      pm25: pm2_5[i] ?? null,
+      no2: nitrogen_dioxide[i] ?? null,
+      o3: ozone[i] ?? null,
       alderPollen: alder_pollen[i] ?? null,
       birchPollen: birch_pollen[i] ?? null,
       grassPollen: grass_pollen[i] ?? null,
@@ -87,7 +89,6 @@ export function useAirQuality(
   const [state, setState] = useState<ModuleState<AqiSample[]>>(() =>
     initialModuleState<AqiSample[]>(),
   );
-  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!coords) {
@@ -101,34 +102,42 @@ export function useAirQuality(
       return;
     }
 
-    controllerRef.current?.abort();
-    const ctrl = new AbortController();
-    controllerRef.current = ctrl;
+    let cancelled = false;
+    // Set once the shared fetch is subscribed; releasing it aborts the
+    // underlying request when this is the last subscriber (see sharedFetch).
+    let release: (() => void) | null = null;
     setState({ status: 'loading', data: null, error: null });
 
     void (async () => {
       const persistent = await cacheGet<AqiSample[]>(key);
-      if (ctrl.signal.aborted) return;
+      if (cancelled) return;
       if (persistent) {
         cache.set(key, persistent);
         setState({ status: 'success', data: persistent, error: null });
         return;
       }
-      try {
-        const samples = await fetchAqi(coords, ctrl.signal);
-        if (ctrl.signal.aborted) return;
-        cache.set(key, samples);
-        void cacheSet(key, samples, TTL.openMeteoAirQuality);
-        setState({ status: 'success', data: samples, error: null });
-      } catch (err: unknown) {
-        if (ctrl.signal.aborted) return;
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        const message = err instanceof Error ? err.message : String(err);
-        setState({ status: 'error', data: null, error: message });
-      }
+
+      const sub = sharedFetch(inflight, key, (signal) => fetchAqi(coords, signal));
+      release = sub.release;
+      sub.promise
+        .then((samples) => {
+          if (cancelled) return;
+          cache.set(key, samples);
+          void cacheSet(key, samples, TTL.openMeteoAirQuality);
+          setState({ status: 'success', data: samples, error: null });
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          const message = err instanceof Error ? err.message : String(err);
+          setState({ status: 'error', data: null, error: message });
+        });
     })();
 
-    return () => ctrl.abort();
+    return () => {
+      cancelled = true;
+      release?.();
+    };
   }, [coords?.lat, coords?.lon]);
 
   return state;

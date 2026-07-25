@@ -1,8 +1,62 @@
 # Changelog
 
-All notable changes to **settl. — Location Intelligence** are documented here.
+All notable changes to **Boreas — Location Intelligence** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 project aims to follow [Semantic Versioning](https://semver.org/).
+
+## [1.2.0] — 2026-07-25 — Truthfulness Pass
+
+The theme of this release is that the app should never claim to know something
+it doesn't. A risk read that says "all clear" while its sources are down is
+worse than no read at all, and several paths did exactly that.
+
+### Fixed
+- **Hazard sources that fail now say so.** A failed wildfire or earthquake feed
+  used to render as `LOW` / `NO FLAGS · AREA CLEAR`; it now reads
+  *unavailable*, with a `PARTIAL DATA` badge when only some sources answered.
+  Results derived from a failed fetch are never cached.
+- **Satellite fire detections count again.** NASA FIRMS timestamps parsed to
+  `Invalid Date`, so every hotspot was silently dropped from severity scoring
+  while still being drawn on the map.
+- **Multi-year climate figures.** The 5/10-year report inflated total
+  precipitation roughly N× and deflated rain-day counts.
+- **Air quality no longer invents clean air.** An all-null pollutant series
+  averaged to `0.0` and displayed as a real reading; missing values show `—`.
+- **Cross-checked severity.** The overview chip and the risk panel read from one
+  shared set of thresholds instead of two copies that had already diverged.
+- **Stored XSS** via world-editable OpenStreetMap place names in map popups.
+- **Corrupt local settings no longer white-screen the app** at startup.
+- **Duplicate and abandoned requests.** A pin drop fired ~28 requests with ~13
+  duplicates; requests are now shared between panels and cancelled when you move
+  the pin.
+- Marine tab survives an API outage instead of reading as "not coastal";
+  earthquakes no longer miss up to ~8 recent days; elevation resets between pins.
+
+### Added
+- **Privacy & Data panel** — what leaves your browser, what's stored on this
+  device, one-click JSON export of saved locations, and a full local wipe that
+  reports failure honestly rather than pretending to have succeeded.
+- **Optional, env-gated analytics and error reporting.** Nothing loads and no
+  request leaves the page unless the keys are configured.
+- **Test suite and CI** — 87 tests covering the severity maths, cache rules,
+  request sharing, popup escaping and the privacy controls, run on every PR.
+
+### Changed
+- **Renamed from settl. to Boreas.** Everything user-facing carries the new
+  name; the repository moved to `github.com/d1mski/boreas` and the app now
+  deploys under `/experiments/boreas/`.
+
+  Local data survives the rename. Storage keys moved from the `settl-` prefix
+  to `boreas-`, and a one-time migration copies saved locations, theme and font
+  scale across on first load, so nothing is lost. The old `settl-cache`
+  IndexedDB database is deleted — it held only re-fetchable API responses.
+
+  Two notes if you are looking at this from the outside: links to the old
+  repository URL keep working via GitHub's redirect, but the previous deploy
+  path (`/experiments/settl/`) does not — update any bookmarks.
+- Version shown in the footer is injected from `package.json` at build time, so
+  it can no longer drift (it had been reading `0.1.0`).
+- Keyboard focus is trapped inside the privacy dialog and restored on close.
 
 ## [1.1.0] — 2026-06-24 — Free Data Expansion + Live Webcams
 
@@ -47,7 +101,8 @@ project aims to follow [Semantic Versioning](https://semver.org/).
 ## [1.0.0] — 2026-06-18 — Reskin + UX Overhaul
 
 ### Added / Changed
-- Rebrand to **settl.** with a rounded-corner reskin (HUD edges removed).
+- Rebrand to **settl.** (the project's name at the time; renamed to Boreas in
+  1.2.0) with a rounded-corner reskin (HUD edges removed).
 - 3-state theme toggle (light/dark/system) with OS detection, and A-/A+ font
   scaling.
 - Debounced location autocomplete, a geolocation button, and plain-English
@@ -64,6 +119,6 @@ project aims to follow [Semantic Versioning](https://semver.org/).
 - Compare mode, building-footprint detection, risk synthesis, and URL state
   persistence.
 
-[1.1.0]: https://github.com/d1mski/settl./releases/tag/v1.1.0
-[1.0.0]: https://github.com/d1mski/settl./releases/tag/v1.0.0
-[0.1.0]: https://github.com/d1mski/settl./releases/tag/v0.1.0
+[1.1.0]: https://github.com/d1mski/boreas/releases/tag/v1.1.0
+[1.0.0]: https://github.com/d1mski/boreas/releases/tag/v1.0.0
+[0.1.0]: https://github.com/d1mski/boreas/releases/tag/v0.1.0

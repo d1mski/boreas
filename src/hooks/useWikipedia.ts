@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Coordinates, ModuleState, WikiArticle } from '../types';
 import { initialModuleState } from '../types';
 import { fetchJson } from '../utils/fetcher';
 import { haversine } from '../utils/coordinates';
 import { cacheGet, cacheSet, TTL } from '../utils/persistentCache';
+import { createSharedMap, sharedFetch } from '../utils/sharedFetch';
 
 interface GeoSearchResponse {
   query: {
@@ -27,6 +28,7 @@ interface ExtractsResponse {
 }
 
 const cache = new Map<string, WikiArticle[]>();
+const inflight = createSharedMap<WikiArticle[]>();
 
 function makeKey(coords: Coordinates, countryCode: string | null): string {
   return `${coords.lat.toFixed(3)}|${coords.lon.toFixed(3)}|${countryCode ?? '-'}`;
@@ -79,14 +81,9 @@ async function fetchBoth(
 
   const byLang = await Promise.all(
     langs.map(async (lang) => {
-      try {
-        const articles = await geosearch(lang, coords, signal);
-        await fetchExtracts(lang, articles, signal);
-        return articles;
-      } catch (err) {
-        if (signal.aborted) throw err;
-        return [];
-      }
+      const articles = await geosearch(lang, coords, signal);
+      await fetchExtracts(lang, articles, signal);
+      return articles;
     }),
   );
 
@@ -111,7 +108,6 @@ export function useWikipedia(
   const [state, setState] = useState<ModuleState<WikiArticle[]>>(() =>
     initialModuleState<WikiArticle[]>(),
   );
-  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!coords) {
@@ -125,34 +121,42 @@ export function useWikipedia(
       return;
     }
 
-    controllerRef.current?.abort();
-    const ctrl = new AbortController();
-    controllerRef.current = ctrl;
+    let cancelled = false;
+    // Set once the shared fetch is subscribed; releasing it aborts the
+    // underlying request when this is the last subscriber (see sharedFetch).
+    let release: (() => void) | null = null;
     setState({ status: 'loading', data: null, error: null });
 
     void (async () => {
       const persistent = await cacheGet<WikiArticle[]>(key);
-      if (ctrl.signal.aborted) return;
+      if (cancelled) return;
       if (persistent) {
         cache.set(key, persistent);
         setState({ status: 'success', data: persistent, error: null });
         return;
       }
-      try {
-        const articles = await fetchBoth(coords, countryCode, ctrl.signal);
-        if (ctrl.signal.aborted) return;
-        cache.set(key, articles);
-        void cacheSet(key, articles, TTL.wikipedia);
-        setState({ status: 'success', data: articles, error: null });
-      } catch (err: unknown) {
-        if (ctrl.signal.aborted) return;
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        const message = err instanceof Error ? err.message : String(err);
-        setState({ status: 'error', data: null, error: message });
-      }
+
+      const sub = sharedFetch(inflight, key, (signal) => fetchBoth(coords, countryCode, signal));
+      release = sub.release;
+      sub.promise
+        .then((articles) => {
+          if (cancelled) return;
+          cache.set(key, articles);
+          void cacheSet(key, articles, TTL.wikipedia);
+          setState({ status: 'success', data: articles, error: null });
+        })
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          const message = err instanceof Error ? err.message : String(err);
+          setState({ status: 'error', data: null, error: message });
+        });
     })();
 
-    return () => ctrl.abort();
+    return () => {
+      cancelled = true;
+      release?.();
+    };
   }, [coords?.lat, coords?.lon, countryCode]);
 
   return state;

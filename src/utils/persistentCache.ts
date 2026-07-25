@@ -1,6 +1,6 @@
 import { createStore, get, set, del, keys, clear } from 'idb-keyval';
 
-const store = createStore('settl-cache', 'kv');
+const store = createStore('boreas-cache', 'kv');
 
 interface CacheEntry<T> {
   data: T;
@@ -10,7 +10,8 @@ interface CacheEntry<T> {
 }
 
 // Bump to invalidate all cached entries when the schema / parsing changes.
-const SCHEMA_VERSION = 2;
+// 3: FIRMS dates fixed, AqiSample nullable, quake TTL — flush poisoned entries.
+const SCHEMA_VERSION = 3;
 
 export async function cacheGet<T>(key: string): Promise<T | null> {
   try {
@@ -44,12 +45,13 @@ export async function cacheSet<T>(key: string, data: T, ttlMs: number): Promise<
   }
 }
 
+/**
+ * Unlike the read/write helpers, this one does NOT swallow. A failed wipe that
+ * reports success tells the user their data is gone when it isn't — the caller
+ * has to be able to say so.
+ */
 export async function cacheClear(): Promise<void> {
-  try {
-    await clear(store);
-  } catch {
-    // swallow
-  }
+  await clear(store);
 }
 
 export async function cacheKeys(): Promise<IDBValidKey[]> {
@@ -63,7 +65,7 @@ export async function cacheKeys(): Promise<IDBValidKey[]> {
 export const TTL = {
   openMeteoArchive: 30 * 24 * 60 * 60 * 1000,
   openMeteoAirQuality: 12 * 60 * 60 * 1000,
-  earthquakes: 7 * 24 * 60 * 60 * 1000,
+  earthquakes: 6 * 60 * 60 * 1000,
   overpassBuilding: 30 * 24 * 60 * 60 * 1000,
   overpassFeatures: 30 * 24 * 60 * 60 * 1000,
   elevation: 365 * 24 * 60 * 60 * 1000,
