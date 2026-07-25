@@ -14,7 +14,7 @@ describe('persistentCache contract', () => {
   it('rejects entries from an older schema version', async () => {
     // Write a raw entry with a stale version through the same idb store.
     const { createStore, set } = await import('idb-keyval');
-    const store = createStore('settl-cache', 'kv');
+    const store = createStore('boreas-cache', 'kv');
     await set('t:oldver', { data: 'v', fetchedAt: Date.now(), ttl: 60_000, version: -1 }, store);
     expect(await cacheGet('t:oldver')).toBeNull();
   });

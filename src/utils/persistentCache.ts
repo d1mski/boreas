@@ -1,6 +1,6 @@
 import { createStore, get, set, del, keys, clear } from 'idb-keyval';
 
-const store = createStore('settl-cache', 'kv');
+const store = createStore('boreas-cache', 'kv');
 
 interface CacheEntry<T> {
   data: T;

@@ -27,17 +27,17 @@ afterEach(() => {
 });
 
 describe('handleWipe', () => {
-  it('clears IndexedDB and every settl- localStorage key', async () => {
+  it('clears IndexedDB and every boreas- localStorage key', async () => {
     await cacheSet('wildfire:1.000|2.000', [{ id: 'x' }], 60_000);
     localStorage.setItem(STORAGE_KEY, JSON.stringify([{ label: 'home' }]));
-    localStorage.setItem('settl-theme', 'dark');
+    localStorage.setItem('boreas-theme', 'dark');
     expect(await cacheGet('wildfire:1.000|2.000')).not.toBeNull();
 
     await handleWipe();
 
     expect(await cacheKeys()).toHaveLength(0);
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
-    expect(localStorage.getItem('settl-theme')).toBeNull();
+    expect(localStorage.getItem('boreas-theme')).toBeNull();
   });
 
   it('leaves other apps’ localStorage keys alone', async () => {
@@ -102,7 +102,7 @@ describe('handleExport', () => {
     return { clicked, text: () => blobText };
   }
 
-  it('downloads saved locations as valid JSON under a settl filename', async () => {
+  it('downloads saved locations as valid JSON under a Boreas filename', async () => {
     const saved = [{ label: 'home', lat: 38.3, lon: 21.8 }];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
     const cap = captureDownload();
@@ -110,7 +110,7 @@ describe('handleExport', () => {
     handleExport();
 
     expect(cap.clicked).toHaveLength(1);
-    expect(cap.clicked[0].download).toBe('settl-saved-locations.json');
+    expect(cap.clicked[0].download).toBe('boreas-saved-locations.json');
     // The blob is built from the raw localStorage string, so assert on that
     // directly — it is what actually reaches the file.
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual(saved);

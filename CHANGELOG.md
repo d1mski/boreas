@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **settl. — Location Intelligence** are documented here.
+All notable changes to **Boreas — Location Intelligence** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 project aims to follow [Semantic Versioning](https://semver.org/).
 
@@ -42,6 +42,18 @@ worse than no read at all, and several paths did exactly that.
   request sharing, popup escaping and the privacy controls, run on every PR.
 
 ### Changed
+- **Renamed from settl. to Boreas.** Everything user-facing carries the new
+  name; the repository moved to `github.com/d1mski/boreas` and the app now
+  deploys under `/experiments/boreas/`.
+
+  Local data survives the rename. Storage keys moved from the `settl-` prefix
+  to `boreas-`, and a one-time migration copies saved locations, theme and font
+  scale across on first load, so nothing is lost. The old `settl-cache`
+  IndexedDB database is deleted — it held only re-fetchable API responses.
+
+  Two notes if you are looking at this from the outside: links to the old
+  repository URL keep working via GitHub's redirect, but the previous deploy
+  path (`/experiments/settl/`) does not — update any bookmarks.
 - Version shown in the footer is injected from `package.json` at build time, so
   it can no longer drift (it had been reading `0.1.0`).
 - Keyboard focus is trapped inside the privacy dialog and restored on close.
@@ -89,7 +101,8 @@ worse than no read at all, and several paths did exactly that.
 ## [1.0.0] — 2026-06-18 — Reskin + UX Overhaul
 
 ### Added / Changed
-- Rebrand to **settl.** with a rounded-corner reskin (HUD edges removed).
+- Rebrand to **settl.** (the project's name at the time; renamed to Boreas in
+  1.2.0) with a rounded-corner reskin (HUD edges removed).
 - 3-state theme toggle (light/dark/system) with OS detection, and A-/A+ font
   scaling.
 - Debounced location autocomplete, a geolocation button, and plain-English
@@ -106,6 +119,6 @@ worse than no read at all, and several paths did exactly that.
 - Compare mode, building-footprint detection, risk synthesis, and URL state
   persistence.
 
-[1.1.0]: https://github.com/d1mski/settl./releases/tag/v1.1.0
-[1.0.0]: https://github.com/d1mski/settl./releases/tag/v1.0.0
-[0.1.0]: https://github.com/d1mski/settl./releases/tag/v0.1.0
+[1.1.0]: https://github.com/d1mski/boreas/releases/tag/v1.1.0
+[1.0.0]: https://github.com/d1mski/boreas/releases/tag/v1.0.0
+[0.1.0]: https://github.com/d1mski/boreas/releases/tag/v0.1.0

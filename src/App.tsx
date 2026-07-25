@@ -88,8 +88,8 @@ export default function App() {
   // where the panel grid expands the selected cam's player.
   useEffect(() => {
     const handler = () => handleDrillDown('context');
-    window.addEventListener('settl-webcam-select', handler);
-    return () => window.removeEventListener('settl-webcam-select', handler);
+    window.addEventListener('boreas-webcam-select', handler);
+    return () => window.removeEventListener('boreas-webcam-select', handler);
   }, [handleDrillDown]);
 
   // C-02: marine tab vanishes when an active-marine pin becomes inland — revert to climate.
