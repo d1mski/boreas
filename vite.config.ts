@@ -2,9 +2,16 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+
+// The footer version was a hand-typed literal and drifted to 0.1.0 while
+// package.json said 1.1.0. Injecting it here makes package.json the only
+// place a release number is written.
+const { version } = createRequire(import.meta.url)('./package.json') as { version: string };
 
 export default defineConfig({
   base: '/experiments/settl/',
+  define: { __APP_VERSION__: JSON.stringify(version) },
   plugins: [
     react(),
     visualizer({

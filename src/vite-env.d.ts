@@ -13,6 +13,9 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
+/** Injected from package.json by vite `define` — see vite.config.ts. */
+declare const __APP_VERSION__: string;
+
 interface Window {
   umami?: { track: (event: string, data?: Record<string, unknown>) => void };
 }

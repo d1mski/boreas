@@ -73,7 +73,7 @@ export function BottomStrip({
 
       <div className="px-4 flex items-center gap-3 border-r border-edge h-full text-muted">
         <span>SYS</span>
-        <span className="text-ink">settl./0.1.0</span>
+        <span className="text-ink">settl./{__APP_VERSION__}</span>
       </div>
 
       <div className="px-4 flex items-center gap-3 border-r border-edge h-full text-muted">
