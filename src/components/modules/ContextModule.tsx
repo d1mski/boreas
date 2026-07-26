@@ -202,7 +202,7 @@ function CompareView({
                     <td className="py-1.5 pr-2 text-ink uppercase">{label}</td>
                     <td
                       className={`py-1.5 pr-2 text-cyan tabular-nums${fA ? ' cursor-pointer hover:bg-cyan/5' : ''}`}
-                      onClick={fA ? () => window.dispatchEvent(new CustomEvent('boreas-flyto', { detail: { lat: fA.lat, lon: fA.lon } })) : undefined}
+                      onClick={fA ? () => window.dispatchEvent(new CustomEvent('settl-flyto', { detail: { lat: fA.lat, lon: fA.lon } })) : undefined}
                     >
                       {fA ? (
                         <span className="inline-flex items-center gap-1">
@@ -213,7 +213,7 @@ function CompareView({
                     </td>
                     <td
                       className={`py-1.5 pr-2 text-amber tabular-nums${fB ? ' cursor-pointer hover:bg-cyan/5' : ''}`}
-                      onClick={fB ? () => window.dispatchEvent(new CustomEvent('boreas-flyto', { detail: { lat: fB.lat, lon: fB.lon } })) : undefined}
+                      onClick={fB ? () => window.dispatchEvent(new CustomEvent('settl-flyto', { detail: { lat: fB.lat, lon: fB.lon } })) : undefined}
                     >
                       {fB ? (
                         <span className="inline-flex items-center gap-1">
@@ -363,7 +363,7 @@ function WikiList({
       {wiki.slice(0, limit).map((article) => (
         <button
           key={`${article.language}-${article.pageid}`}
-          onClick={() => window.dispatchEvent(new CustomEvent('boreas-flyto', {
+          onClick={() => window.dispatchEvent(new CustomEvent('settl-flyto', {
             detail: { lat: article.lat, lon: article.lon, title: article.title, url: article.url },
           }))}
           className="block w-full text-left border border-edge bg-void/40 px-2 py-1.5 hover:border-cyan/60 hover:bg-cyan/5 transition-colors cursor-pointer"
@@ -387,7 +387,7 @@ function WikiList({
 
 function NearestTable({ nearest }: { nearest: ReturnType<typeof nearestByType> }) {
   const flyTo = useCallback((lat: number, lon: number, title?: string) => {
-    window.dispatchEvent(new CustomEvent('boreas-flyto', { detail: { lat, lon, title } }));
+    window.dispatchEvent(new CustomEvent('settl-flyto', { detail: { lat, lon, title } }));
   }, []);
 
   return (
@@ -455,8 +455,8 @@ function WebcamGrid({ webcams }: { webcams: WindyWebcam[] }) {
         setSelectedId(id);
       }
     };
-    window.addEventListener('boreas-webcam-select', handler);
-    return () => window.removeEventListener('boreas-webcam-select', handler);
+    window.addEventListener('settl-webcam-select', handler);
+    return () => window.removeEventListener('settl-webcam-select', handler);
   }, []);
 
   const selected = webcams.find((c) => c.webcamId === selectedId) ?? null;

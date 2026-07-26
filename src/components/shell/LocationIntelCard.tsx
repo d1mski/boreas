@@ -238,7 +238,7 @@ export function LocationIntelCard({
       <div className="px-4 pt-3 pb-2 border-b border-edge flex items-center justify-between">
         <div>
           <div className="font-mono text-[17px] font-bold leading-none tracking-tight text-ink lowercase">
-            Boreas<span className="text-cyan">.</span>
+            settl<span className="text-cyan">.</span>
           </div>
           <div className="text-[8px] font-mono uppercase tracking-widest text-muted mt-1">
             LOCATION INTELLIGENCE

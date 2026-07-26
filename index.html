@@ -5,20 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0B1120" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Boreas — Location Intelligence</title>
+    <title>settl. — Location Intelligence</title>
     <script>
       (function() {
-        // Runs before the bundle, so it predates the settl-→boreas- storage
-        // migration in utils/migrateBrand. Falling back to the legacy key keeps
-        // returning users from getting one flash of the wrong theme.
-        function read(name) {
-          return localStorage.getItem('boreas-' + name) || localStorage.getItem('settl-' + name);
-        }
-        var theme = read('theme') || 'system';
+        var theme = localStorage.getItem('settl-theme') || 'system';
         var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         var isDark = theme === 'dark' || (theme === 'system' && prefersDark);
         if (!isDark) document.documentElement.classList.add('theme-light');
-        var scale = parseFloat(read('font-scale') || '1');
+        var scale = parseFloat(localStorage.getItem('settl-font-scale') || '1');
         if (isFinite(scale) && scale !== 1) {
           document.documentElement.style.fontSize = (scale * 100) + '%';
         }

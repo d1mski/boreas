@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
-const STORAGE_KEY = 'boreas-font-scale';
+const STORAGE_KEY = 'settl-font-scale';
 const MIN = 0.8;
 const MAX = 1.4;
 const STEP = 0.1;

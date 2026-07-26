@@ -30,11 +30,11 @@ export function MobileSheet({ hasLocation, children }: { hasLocation: boolean; c
   useEffect(() => { if (!dragging && h) setY(targetY(pos, h)); }, [pos, h, dragging]);
 
   // Tapping a webcam map marker should reveal the player — slide the sheet fully up.
-  // 'boreas-webcam-select' fires only from map markers (panel clicks don't dispatch it).
+  // 'settl-webcam-select' fires only from map markers (panel clicks don't dispatch it).
   useEffect(() => {
     const handler = () => setPos('full');
-    window.addEventListener('boreas-webcam-select', handler);
-    return () => window.removeEventListener('boreas-webcam-select', handler);
+    window.addEventListener('settl-webcam-select', handler);
+    return () => window.removeEventListener('settl-webcam-select', handler);
   }, []);
 
   const onPointerDown = (e: React.PointerEvent) => {

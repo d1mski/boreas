@@ -10,7 +10,7 @@ import { createRequire } from 'node:module';
 const { version } = createRequire(import.meta.url)('./package.json') as { version: string };
 
 export default defineConfig({
-  base: '/experiments/boreas/',
+  base: '/experiments/settl/',
   define: { __APP_VERSION__: JSON.stringify(version) },
   plugins: [
     react(),

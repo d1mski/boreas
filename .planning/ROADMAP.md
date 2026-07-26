@@ -1,4 +1,4 @@
-# Roadmap: Boreas — v1.0 Reskin + UX Overhaul
+# Roadmap: settl. — v1.0 Reskin + UX Overhaul
 
 ## Overview
 
@@ -33,19 +33,19 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: CSS Foundations + Reskin
-**Goal**: Visual foundation is stable — brand is Boreas, HUD decoration is gone, corners are rounded, Leaflet is safe
+**Goal**: Visual foundation is stable — brand is settl., HUD decoration is gone, corners are rounded, Leaflet is safe
 **Depends on**: Nothing (first phase)
 **Requirements**: SKIN-01, SKIN-02, SKIN-03
 **Success Criteria** (what must be TRUE):
   1. All panels and cards display 8-14px rounded corners with no sharp HUD edges anywhere in the UI
   2. Noise overlay, scan lines, HUD brackets, grid dots, and gradient backdrops are absent from every view
-  3. Page title, logo area, and bottom strip show "Boreas" with the cyan dot accent
+  3. Page title, logo area, and bottom strip show "settl." with the cyan dot accent
   4. Leaflet popups and tooltip arrows render correctly on both dark and light themes after all CSS changes
 **Plans:** 0/3 plans executed
 Plans:
 - [ ] 01-01-PLAN.md — CSS token layer: strip HUD decorative CSS, add rounded corner tokens, update Leaflet overrides
 - [ ] 01-02-PLAN.md — Component cleanup: remove brackets from Panel, strip MapHud decorations, apply rounded corners
-- [ ] 01-03-PLAN.md — Brand rename: rebrand BlindSpot to Boreas across all files
+- [ ] 01-03-PLAN.md — Brand rename: rebrand BlindSpot to settl. across all files
 **UI hint**: yes
 
 ### Phase 2: App Shell State

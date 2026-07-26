@@ -1,5 +1,5 @@
 {
-  "_source": "Real data pulled from the same free APIs Boreas uses (Open-Meteo ERA5 archive 2014–2023 normals, live air-quality/marine/forecast). Throwaway fetch, no product code.",
+  "_source": "Real data pulled from the same free APIs Settl. uses (Open-Meteo ERA5 archive 2014–2023 normals, live air-quality/marine/forecast). Throwaway fetch, no product code.",
   "location": "St Ives, Cornwall, England · TR26",
   "coords": { "lat": 50.2084, "lon": -5.4901 },
   "elevation_m": 82,

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **Boreas — Location Intelligence** are documented here.
+All notable changes to **settl. — Location Intelligence** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 project aims to follow [Semantic Versioning](https://semver.org/).
 
@@ -31,17 +31,6 @@ worse than no read at all, and several paths did exactly that.
   the pin.
 - Marine tab survives an API outage instead of reading as "not coastal";
   earthquakes no longer miss up to ~8 recent days; elevation resets between pins.
-
-### Added
-- **Privacy & Data panel** — what leaves your browser, what's stored on this
-  device, one-click JSON export of saved locations, and a full local wipe that
-  reports failure honestly rather than pretending to have succeeded.
-- **Optional, env-gated analytics and error reporting.** Nothing loads and no
-  request leaves the page unless the keys are configured.
-- **Test suite and CI** — 87 tests covering the severity maths, cache rules,
-  request sharing, popup escaping and the privacy controls, run on every PR.
-
-### Fixed
 - **Pinned coordinates no longer reach the analytics host.** The location is
   kept in the URL as `?lat=…&lon=…` so a view can be shared, and Umami's
   tracker follows history changes — so every pin drop was sending the exact
@@ -52,22 +41,19 @@ worse than no read at all, and several paths did exactly that.
   analytics. All three entry points (module rail, drill-down, map marker) now
   record the same event, tagged with where it came from.
 
+### Added
+- **Privacy & Data panel** — what leaves your browser, what's stored on this
+  device, one-click JSON export of saved locations, and a full local wipe that
+  reports failure honestly rather than pretending to have succeeded.
+- **Optional, env-gated analytics and error reporting.** Nothing loads and no
+  request leaves the page unless the keys are configured.
+- **Test suite and CI** — 87 tests covering the severity maths, cache rules,
+  request sharing, popup escaping and the privacy controls, run on every PR.
+
 ### Changed
 - The privacy panel names analytics and error reporting as recipients when
   they are switched on. It claims to list everything that leaves the browser,
   and previously listed only the data providers.
-- **Renamed from settl. to Boreas.** Everything user-facing carries the new
-  name; the repository moved to `github.com/d1mski/boreas` and the app now
-  deploys under `/experiments/boreas/`.
-
-  Local data survives the rename. Storage keys moved from the `settl-` prefix
-  to `boreas-`, and a one-time migration copies saved locations, theme and font
-  scale across on first load, so nothing is lost. The old `settl-cache`
-  IndexedDB database is deleted — it held only re-fetchable API responses.
-
-  Two notes if you are looking at this from the outside: links to the old
-  repository URL keep working via GitHub's redirect, but the previous deploy
-  path (`/experiments/settl/`) does not — update any bookmarks.
 - Version shown in the footer is injected from `package.json` at build time, so
   it can no longer drift (it had been reading `0.1.0`).
 - Keyboard focus is trapped inside the privacy dialog and restored on close.
@@ -115,8 +101,7 @@ worse than no read at all, and several paths did exactly that.
 ## [1.0.0] — 2026-06-18 — Reskin + UX Overhaul
 
 ### Added / Changed
-- Rebrand to **settl.** (the project's name at the time; renamed to Boreas in
-  1.2.0) with a rounded-corner reskin (HUD edges removed).
+- Rebrand to **settl.** with a rounded-corner reskin (HUD edges removed).
 - 3-state theme toggle (light/dark/system) with OS detection, and A-/A+ font
   scaling.
 - Debounced location autocomplete, a geolocation button, and plain-English
@@ -133,6 +118,6 @@ worse than no read at all, and several paths did exactly that.
 - Compare mode, building-footprint detection, risk synthesis, and URL state
   persistence.
 
-[1.1.0]: https://github.com/d1mski/boreas/releases/tag/v1.1.0
-[1.0.0]: https://github.com/d1mski/boreas/releases/tag/v1.0.0
-[0.1.0]: https://github.com/d1mski/boreas/releases/tag/v0.1.0
+[1.1.0]: https://github.com/d1mski/settl./releases/tag/v1.1.0
+[1.0.0]: https://github.com/d1mski/settl./releases/tag/v1.0.0
+[0.1.0]: https://github.com/d1mski/settl./releases/tag/v0.1.0
