@@ -110,7 +110,7 @@ function FlyToListener() {
         // Silent in prod (a bad event should not break the map), loud in dev —
         // otherwise a mistyped dispatch just makes fly-to quietly do nothing.
         if (import.meta.env.DEV) {
-          console.warn('boreas-flyto: ignoring event with non-numeric coords', { lat, lon });
+          console.warn('settl-flyto: ignoring event with non-numeric coords', { lat, lon });
         }
         return;
       }
@@ -128,8 +128,8 @@ function FlyToListener() {
         }, 700);
       }
     };
-    window.addEventListener('boreas-flyto', handler);
-    return () => window.removeEventListener('boreas-flyto', handler);
+    window.addEventListener('settl-flyto', handler);
+    return () => window.removeEventListener('settl-flyto', handler);
   }, [map]);
   return null;
 }

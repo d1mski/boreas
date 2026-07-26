@@ -14,9 +14,9 @@ product
 
 ## Product Purpose
 
-Boreas turns scattered public location data (climate, wind, sun, hazards, air quality, local context) into a calm, digestible neighbourhood dashboard for any location. It exists to make a high-stakes relocation decision feel understandable.
+Settl. turns scattered public location data (climate, wind, sun, hazards, air quality, local context) into a calm, digestible neighbourhood dashboard for any location. It exists to make a high-stakes relocation decision feel understandable.
 
-Monetization: sell **agency-branded PDF location reports**. The dashboard data becomes a white-label leave-behind / listing attachment that estate agents pay for (£9 one-off or ~£25/mo unlimited). Success = agents routinely attach a Boreas-powered report to listings, and the report looks like premium work they produced.
+Monetization: sell **agency-branded PDF location reports**. The dashboard data becomes a white-label leave-behind / listing attachment that estate agents pay for (£9 one-off or ~£25/mo unlimited). Success = agents routinely attach a Settl.-powered report to listings, and the report looks like premium work they produced.
 
 ## Brand Personality
 
@@ -38,7 +38,7 @@ Reassuring, grounded, clear. A calm expert who makes complex data feel simple an
 3. **Warmth over precision** — rounded corners, soft shadows, friendly type. Families, not analysts.
 4. **Both modes are first-class** — dark mode isn't an afterthought; light mode isn't the only option.
 5. **Agent-presentable** — clean enough that an agent can screen-share or hand over a PDF and look professional.
-6. **The white-label disappears** — on a paid report the agency's brand leads; Boreas recedes to a quiet "data by Boreas" footer (or nothing). The agent's confidence in handing it over is the feature.
+6. **The white-label disappears** — on a paid report the agency's brand leads; Settl. recedes to a quiet "data by Settl." footer (or nothing). The agent's confidence in handing it over is the feature.
 7. **Confidence where money changes hands** — pricing and checkout are honest, clear, and reassuring; never dark-pattern.
 
 ## Accessibility & Inclusion

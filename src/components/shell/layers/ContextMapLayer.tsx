@@ -13,7 +13,7 @@ import type { WikiArticle } from '../../../types';
 
 // Camera glyph marker — distinct from the circular feature/wiki pins
 const webcamIcon = L.divIcon({
-  className: 'boreas-webcam-pin',
+  className: 'settl-webcam-pin',
   html: '<div style="font-size:15px;line-height:1;filter:drop-shadow(0 0 2px rgba(0,0,0,.9))">📷</div>',
   iconSize: [20, 20],
   iconAnchor: [10, 10],
@@ -75,7 +75,7 @@ function WebcamPins({ webcams }: { webcams: WindyWebcam[] }) {
                     // Set first so a fresh-mounting panel reads it; event opens the panel + handles the already-open case
                     pendingWebcam.id = cam.webcamId;
                     window.dispatchEvent(
-                      new CustomEvent('boreas-webcam-select', { detail: { webcamId: cam.webcamId } }),
+                      new CustomEvent('settl-webcam-select', { detail: { webcamId: cam.webcamId } }),
                     );
                   }}
                   className="block mt-1.5 underline"

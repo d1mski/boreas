@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { load } from './useSavedLocations';
 
-const STORAGE_KEY = 'boreas-saved-locations-v1';
+const STORAGE_KEY = 'settl-saved-locations-v1';
 
 // Test runs under vitest's 'node' environment (see vite.config.ts) — no DOM,
 // so localStorage isn't ambient. `load()` only calls getItem, so a minimal

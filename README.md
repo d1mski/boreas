@@ -1,14 +1,8 @@
-# Boreas [Location Intelligence]
+# settl. [Location Intelligence]
 
 Pin a location, see what it's actually like to live there. Climate, wind, sun, air quality, hazards, marine conditions, and what's nearby — plus live webcams. One to ten years of data on one screen. Free, no API keys for the core.
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
-
-> **Formerly `settl.`** — renamed to Boreas in 1.2.0. Links to the old
-> repository URL still resolve via GitHub's redirect. If you used the app
-> before the rename, your saved locations and settings migrate automatically on
-> first load; the deploy path moved to `/experiments/boreas/`. See the
-> [changelog](CHANGELOG.md#120--2026-07-25--truthfulness-pass) for detail.
 
 <img width="1792" height="1033" alt="image" src="https://github.com/user-attachments/assets/860aa7d3-859f-4b2c-bea3-652c468e1eb8" />
 
@@ -66,8 +60,8 @@ There's an overview mode that summarizes all modules on one screen with severity
 ## Run it
 
 ```bash
-git clone https://github.com/d1mski/boreas.git
-cd boreas
+git clone https://github.com/d1mski/settl..git
+cd settl.
 npm install
 npm run dev
 ```
@@ -95,7 +89,7 @@ Optional (needs a free key — see [`.env.example`](.env.example)):
 
 ### Privacy
 
-Coordinates you pin are sent to the data providers listed above, plus [GeoJS](https://www.geojs.io/) (initial map centering from your IP) and [CARTO](https://carto.com/) (map tiles). Nothing is sent to any Boreas server — there isn't one.
+Coordinates you pin are sent to the data providers listed above, plus [GeoJS](https://www.geojs.io/) (initial map centering from your IP) and [CARTO](https://carto.com/) (map tiles). Nothing is sent to any settl. server — there isn't one.
 
 ## License
 

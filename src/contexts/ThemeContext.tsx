@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 export type ThemeMode = 'light' | 'system' | 'dark';
 
-const STORAGE_KEY = 'boreas-theme';
+const STORAGE_KEY = 'settl-theme';
 
 function getSystemDark(): boolean {
   return window.matchMedia('(prefers-color-scheme: dark)').matches;

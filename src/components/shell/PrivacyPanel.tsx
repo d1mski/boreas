@@ -42,7 +42,7 @@ export function handleExport() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'boreas-saved-locations.json';
+  a.download = 'settl-saved-locations.json';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -61,7 +61,7 @@ export async function handleWipe() {
     return;
   }
   for (const k of Object.keys(localStorage)) {
-    if (k.startsWith('boreas-')) localStorage.removeItem(k);
+    if (k.startsWith('settl-')) localStorage.removeItem(k);
   }
   window.location.reload();
 }
@@ -152,7 +152,7 @@ export function PrivacyPanel({ open, onClose }: Props) {
               <span className="flex-1 h-px bg-edge" />
             </div>
             <p className="text-[10px] font-mono text-ink leading-snug mb-2">
-              Coordinates you pin are sent directly to these services to fetch data; Boreas has no server of its own:
+              Coordinates you pin are sent directly to these services to fetch data; settl. has no server of its own:
             </p>
             <ul className="space-y-1">
               {RECIPIENTS.map((r) => (

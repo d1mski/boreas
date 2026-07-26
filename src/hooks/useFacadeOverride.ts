@@ -4,7 +4,7 @@ import type { BuildingFacade, Coordinates } from '../types';
 type FacadeLabel = BuildingFacade['label'];
 type Slot = 'A' | 'B';
 
-const STORAGE_KEY = 'boreas-facade-overrides-v1';
+const STORAGE_KEY = 'settl-facade-overrides-v1';
 
 const store = new Map<string, FacadeLabel>(loadFromStorage());
 const listeners = new Set<() => void>();

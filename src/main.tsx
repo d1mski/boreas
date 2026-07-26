@@ -1,10 +1,3 @@
-// FIRST import, deliberately, and a side-effect import rather than a call:
-// import statements are hoisted above every statement in this file, so calling
-// the migration here would still run it AFTER App's module graph had evaluated.
-// useFacadeOverride reads storage while it is being imported, so the move from
-// settl- to boreas- keys has to happen during module evaluation, ahead of App.
-import './utils/migrateBrand';
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import '@fontsource/jetbrains-mono/400.css';

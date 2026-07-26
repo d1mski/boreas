@@ -1,4 +1,4 @@
-# Boreas
+# settl.
 
 ## What This Is
 
@@ -60,7 +60,7 @@ Give anyone instant, trustworthy, data-backed insight into what it's really like
 - **Current aesthetic**: Military/HUD tactical (JetBrains Mono, cyan/amber, sharp corners, noise overlays)
 - **Target aesthetic**: Same palette softened, rounded corners, no decorative cruft, accessible/ND-friendly
 - **Design mockup**: `mockups/reskin-interactive.html` — approved direction
-- **Brand**: Renamed from BlindSpot to **Boreas** (dot as cyan accent)
+- **Brand**: Renamed from BlindSpot to **settl.** (dot as cyan accent)
 
 ## Constraints
 
@@ -73,7 +73,7 @@ Give anyone instant, trustworthy, data-backed insight into what it's really like
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Rebrand BlindSpot → Boreas | "BlindSpot" potentially insensitive to visually impaired | — Pending |
+| Rebrand BlindSpot → settl. | "BlindSpot" potentially insensitive to visually impaired | — Pending |
 | Overview report as default view | Reduces cognitive load for families; advanced view for power users | — Pending |
 | Lucide icons over emojis | Professional, consistent, tactical feel without childishness | — Pending |
 | Drop fabricated scores | No reliable global data; misleading to present estimates as facts | ✓ Good |
